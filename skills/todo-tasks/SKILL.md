@@ -1,0 +1,57 @@
+---
+name: todo-tasks
+description: Local TODO.md backend operations for the microfactory — find eligible items, claim, comment, and transition by editing checkbox states in a markdown file. Used by plan-next and implement-next when the configured backend is todo. Good for trying out the factory without Jira or GitHub.
+---
+
+# TODO.md task operations
+
+Tasks live in a local markdown file (the `project` path in `.microfactory/config.yaml`). No authentication, no CLI — operations are file edits. The issue key is `TODO-<line-number>` (1-based line number of the item in the file).
+
+## File format
+
+One item per line, a checkbox list. The checkbox character encodes the status; labels are inline `[tag]` markers in the text:
+
+```markdown
+- [ ] Add a health check endpoint
+- [ ] Rework the auth flow [needs-plan]
+- [>] Fix the flaky integration test
+- [x] Update the README
+  - Note: Implemented: Update the README
+```
+
+| Checkbox | Status |
+|---|---|
+| `[ ]` | Open (claimable) |
+| `[>]` | In Progress / In Review |
+| `[~]` | Planning |
+| `[?]` | Awaiting Plan Review |
+| `[p]` | Plan Approved (claimable for implementation) |
+| `[x]` | Done |
+
+## Finding eligible items
+
+By mode and the `plan_by_default` setting:
+
+| Mode | plan_by_default | Eligible lines |
+|---|---|---|
+| planning | true | `[ ]` without a `[skip-plan]` tag |
+| planning | false | `[ ]` with a `[needs-plan]` tag |
+| implementation | true | `[p]`, or `[ ]` with a `[skip-plan]` or `[plan-approved]` tag |
+| implementation | false | `[ ]` without a `[needs-plan]` tag |
+
+## Claiming an item
+
+1. Find eligible lines (top to bottom). If none, there is no work — stop.
+2. Take the first one; its line number gives the key `TODO-<n>`.
+3. Flip its checkbox: to `[~]` (planning mode) or `[>]` (implementation mode).
+4. The item text (minus checkbox and tags) is the issue summary; there is no separate description.
+
+This backend is single-user, so no race verification is needed.
+
+## Other operations
+
+- **View**: read line `<n>` of the file.
+- **Comment**: insert an indented note line directly below the item: `  - Note: <text>`
+- **Transition**: set the checkbox character per the status table above (In Progress and In Review both map to `[>]`; Done is `[x]`). A human reviewer approves a plan by changing `[?]` to `[p]`.
+
+Commit changes to the TODO file together with the related work so the backlog history stays in git.

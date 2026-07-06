@@ -1,255 +1,76 @@
-# AI Coding Factory
+# Microfactory
 
-Autonomous AI agents that pull issues from a task manager, implement them, and push code — continuously. Inspired by [AI Coding Factories](https://jaksa.wordpress.com/2025/08/07/ai-coding-factories/).
+An AI coding factory that fits in a Claude Code session. A plugin that turns a task backlog into a continuous stream of planned and implemented changes: agents pull issues from a task manager, implement them, and push code — continuously. Inspired by [AI Coding Factories](https://jaksa.wordpress.com/2025/08/07/ai-coding-factories/).
 
 ## How it works
 
-Workers poll a task manager for unassigned issues, claim one, clone the repo, invoke an AI agent to implement it, commit and push the result, then loop back for the next issue. The task manager is the single source of truth — no local task store.
+The factory is a set of **skills** — markdown instructions, no scripts and no containers. A Claude Code session in your project runs one skill per work iteration:
 
-The task management backend is pluggable via the `TASK_MANAGER` environment variable (default: `jira`).
+- `/microfactory:implement-next` — claim the next eligible issue, implement it, run the tests, push (directly or via a feature branch + PR), and update the issue.
+- `/microfactory:plan-next` — claim the next issue that needs a plan, write `plans/<KEY>.md`, push it, and put the issue up for human review.
+
+Continuous operation comes from Claude Code's `/loop`, which re-runs a skill on an interval. Parallelism comes from running several sessions — the claim protocol (assign, wait, verify) makes concurrent workers safe because the task manager is the single source of truth.
 
 ```
-[Jira] ← issues queue
-   ↓  workers poll for unassigned open issues
-[Worker pool: claude | copilot | codex | ...]
-   ↓  push to trunk, post comments, transition status
-[Jira + Git]
+[Task backend: Jira | GitHub Issues | TODO.md]
+   ↑↓ claim, comment, transition
+[Claude Code sessions running /loop]
+   ↓ push code and plans
+[Git]
 ```
 
 ## Installation
 
-Clone the repository and run the setup script:
+Install the plugin in Claude Code:
 
-```bash
-git clone https://github.com/jaksa76/ai-coding-factory.git
-cd ai-coding-factory
-./setup.sh
+```
+/plugin marketplace add jaksa76/microfactory
+/plugin install microfactory
 ```
 
-`setup.sh` will:
-1. Check prerequisites (`docker`, `git`)
-2. Ask which AI agent you want to use (claude, copilot, ...)
-3. Create symlinks in `bin/` for all tools (`loop`, `implement`, `plan`, `factory`, `task-manager`, `worker-builder`, `agent`)
-4. Add `bin/` to your `PATH` in your shell config
-5. Collect your credentials and write them to an env file (e.g. `.env.factory`)
+Backend prerequisites: `acli` for Jira, `gh` for GitHub Issues, nothing for the TODO.md backend.
 
-Re-run `setup.sh` at any time to update credentials or change the agent.
+## Setup
 
-## Configuration
+Open Claude Code in the project you want the factory to work on and run:
 
-All configuration is passed via environment variables. `setup.sh` writes these to an env file for you, but you can also set them manually.
-
-### Task manager
-
-The default backend is `jira`. Provide your Jira credentials:
-
-```bash
-export TASK_MANAGER=jira   # optional, jira is the default
-export PROJECT=MYPROJ
-export JIRA_SITE=mycompany.atlassian.net
-export JIRA_EMAIL=worker@mycompany.com
-export JIRA_TOKEN=<jira-api-token>
-export JIRA_ASSIGNEE_ACCOUNT_ID=<jira-account-id>
+```
+/microfactory:init-factory
 ```
 
-For GitHub Issues, use:
-
-```bash
-export TASK_MANAGER=github
-export PROJECT=owner/repo
-export GH_ASSIGNEE=myuser
-export GH_TOKEN=<github-pat>
-```
-
-For the TODO backend, use:
-
-```bash
-export TASK_MANAGER=todo
-export PROJECT=TODO.md
-export TODO_ASSIGNEE=myuser
-```
-
-`PROJECT` is the canonical target passed to `loop --project`:
-- Jira: project key, for example `MYPROJ`
-- GitHub: repository in `owner/repo` form
-- TODO: path to the todo file
-
-### Git
-
-```bash
-export GIT_REPO_URL=https://github.com/myorg/myrepo.git
-export GIT_USERNAME=myuser
-export GIT_TOKEN=<github-pat>
-```
-
-### AI agent
-
-**Claude (API key):**
-```bash
-export ANTHROPIC_API_KEY=<your-api-key>
-```
-
-**Claude (subscription):** log in with `claude login` first, then import your credentials (see below). Or set them manually from `~/.claude/.credentials.json`:
-```bash
-export CLAUDE_ACCESS_TOKEN=<access-token>
-export CLAUDE_REFRESH_TOKEN=<refresh-token>
-export CLAUDE_TOKEN_EXPIRES_AT=<timestamp>
-export CLAUDE_SUBSCRIPTION_TYPE=pro
-```
-
-**GitHub Copilot:**
-```bash
-export GH_TOKEN=<your-github-token>
-export GH_USERNAME=<your-github-username>
-```
-
-### Optional
-
-```bash
-export FEATURE_BRANCHES=true           # create a feature branch + PR per issue
-export PLAN_BY_DEFAULT=true            # require a planning step for all issues
-export NO_ISSUES_WAIT=60               # seconds to wait when no issues are available
-export INTER_ISSUE_WAIT=1200           # seconds to wait between issues
-export IMPLEMENTATION_PROMPT="..."     # override the default implementation prompt
-export PLANNING_PROMPT="..."           # override the default planning prompt
-```
+It interviews you (backend, project, planning and branching policy, loop intervals), authenticates the backend CLI, writes `.microfactory/config.yaml` (no secrets — safe to commit), and starts the work loop in the current session.
 
 ## Running
 
-There are three ways to run workers: directly, via Docker, or via the factory.
+A typical setup uses two sessions in the same project:
 
-### Directly
+```
+# session 1 — implementer
+/loop 20m /microfactory:implement-next
 
-Run the `loop` script directly on your machine (no Docker required):
-
-```bash
-loop --project MYPROJ
+# session 2 — planner (only needed if you use planning)
+/loop 10m /microfactory:plan-next
 ```
 
-This uses whatever `agent` script is on your `PATH` (set by `setup.sh`) and the environment variables in your current shell. Useful for development and testing.
+Add more implementer sessions to scale out. You can also run a single iteration by invoking a skill directly, optionally for a specific issue:
 
-### Via Docker
-
-Build a worker image and run it with your env file:
-
-```bash
-docker build -f workers/claude/Dockerfile -t worker-claude .
-docker run --env-file .env.factory worker-claude
+```
+/microfactory:implement-next MYPROJ-42
 ```
 
-### Via the factory (multiple workers)
+## Workflow
 
-Use `factory` to manage multiple Docker workers at once:
+Issue state drives everything; the board is your monitor.
 
-```bash
-factory workers                          # start 1 implementation worker
-factory workers 3                        # start 3 implementation workers
-factory workers --env-file .env.factory  # pass credentials to workers
-```
+1. An issue starts in **To Do** (or as an open unassigned GitHub issue / `[ ]` TODO item).
+2. If it needs planning (`needs-plan` label, or `plan_by_default: true` in config), a planner session claims it, writes `plans/<KEY>.md`, pushes it, and transitions the issue to **Awaiting Plan Review**.
+3. A human reviews the plan and transitions the issue to **Plan Approved**.
+4. An implementer session claims it, implements (following the plan when present), runs the tests, pushes, and transitions the issue to **Done** — or opens a PR and transitions to **In Review** when feature branches are enabled.
 
-This uses the `worker-claude` image by default. Override with `FACTORY_WORKER_IMAGE=<image>`. Images are automatically built or rebuilt when missing or outdated.
+Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
 
-You can also set the env file globally:
+On GitHub, statuses map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
-```bash
-export FACTORY_ENV_FILE=.env.factory
-factory workers 3
-```
+## Legacy
 
-Monitor and control workers:
-
-```bash
-factory status              # list running workers
-factory logs <worker-id>    # stream a worker's output
-factory stop <worker-id>    # stop a specific worker
-factory stop --all          # stop all workers
-```
-
-For lower-level control (e.g. a specific image):
-
-```bash
-factory add --image worker-copilot 2
-```
-
-### Via AWS ECS (Fargate)
-
-To run workers on AWS ECS Fargate instead of local Docker, create a `runtime` symlink in the factory directory pointing to `runtime-aws`:
-
-```bash
-ln -sf runtime-aws factory/runtime
-```
-
-Then set the required AWS variables:
-
-```bash
-export FACTORY_AWS_REGION=us-east-1
-export FACTORY_AWS_CLUSTER=ai-coding-factory
-export FACTORY_AWS_SUBNET_ID=subnet-...
-export FACTORY_AWS_SECURITY_GROUP_ID=sg-...
-```
-
-All other factory commands (`factory workers`, `factory status`, `factory logs`, etc.) work the same way.
-
-### Feature branches
-
-To open a PR per issue instead of pushing directly to the default branch:
-
-```bash
-export FEATURE_BRANCHES=true
-```
-
-Or add a `needs-branch` label to individual Jira issues. The worker creates `feature/<ISSUE-KEY>`, pushes it, opens a PR, posts a comment with the PR URL, and attempts to transition the issue to **In Review**.
-
-Individual issues can opt out with the `skip-branch` label (takes precedence over `FEATURE_BRANCHES=true`).
-
-### Importing Claude credentials
-
-If you use a Claude subscription, OAuth tokens expire periodically. After running `claude login` to refresh them, import the new credentials into your env file with:
-
-```bash
-factory import-claude-credentials --env-file .env.factory
-```
-
-This reads `~/.claude/.credentials.json` and updates the `CLAUDE_*` variables in your env file in place.
-
----
-
-## Planning
-
-If your workflow requires a planning step before implementation, run planner workers alongside your regular workers. Planners claim issues, generate a written plan, commit it to `plans/<ISSUE-KEY>.md` in the repo, and move on. A human reviews the plan; once approved, a regular implementation worker picks the issue up.
-
-### Build the planner image
-
-```bash
-docker build -f planner/Dockerfile -t planner-claude .
-```
-
-### Start planner workers
-
-```bash
-factory planners                          # start 1 planning worker
-factory planners 2                        # start 2 planning workers
-factory planners --env-file .env.factory  # pass environment variables to planners
-```
-
-This uses the `planner-claude` image by default. Override with `FACTORY_PLANNER_IMAGE=<image>`.
-
-### Workflow
-
-1. Planner claims an eligible issue and generates `plans/<ISSUE-KEY>.md`
-2. Issue is transitioned to **Awaiting Plan Review**
-3. Human reviews and approves the plan (transitions issue to **Plan Approved**)
-4. Regular implementation worker picks it up from the **Plan Approved** queue
-
-### Opt-in / opt-out
-
-By default, planning is **opt-in**. Add a `needs-plan` label to an issue to require a planning step for that specific issue.
-
-To require planning for all issues by default, set:
-
-```bash
-export PLAN_BY_DEFAULT=true
-```
-
-Individual issues can bypass planning with the `skip-plan` label (takes precedence over `PLAN_BY_DEFAULT=true`).
-
+The previous implementations are kept for reference: `legacy/bash-factory/` (bash scripts + Docker worker containers, with its full test suite) and `legacy/hub/` (the original hub-based design).
