@@ -1,10 +1,10 @@
 # AI Coding Factory
 
-Autonomous AI agents that pull issues from a task manager, implement them, and push code — continuously. Inspired by [AI Coding Factories](https://jaksa.wordpress.com/2025/08/07/ai-coding-factories/).
+Autonomous AI agents that pull issues from a task manager, implement them, and push code - continuously. Inspired by [AI Coding Factories](https://jaksa.wordpress.com/2025/08/07/ai-coding-factories/).
 
 ## How it works
 
-Workers poll a task manager for unassigned issues, claim one, clone the repo, invoke an AI agent to implement it, commit and push the result, then loop back for the next issue. The task manager is the single source of truth — no local task store.
+Workers poll a task manager for unassigned issues, claim one, clone the repo, invoke an AI agent to implement it, commit and push the result, then loop back for the next issue. The task manager is the single source of truth - no local task store.
 
 The task management backend is pluggable via the `TASK_MANAGER` environment variable (default: `jira`).
 
