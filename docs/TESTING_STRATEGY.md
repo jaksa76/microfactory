@@ -1,5 +1,7 @@
 # Testing Strategy
 
+> **Note:** this document describes the test suite of the legacy bash implementation, now archived under `legacy/bash-factory/`. The current skills-based implementation has no automated suite — see the Testing section of `CLAUDE.md`.
+
 ## Framework
 
 All tests use [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
