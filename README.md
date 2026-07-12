@@ -24,7 +24,7 @@ Continuous operation comes from Claude Code's `/loop`, which re-runs a skill on 
 Install the plugin in Claude Code:
 
 ```
-/plugin marketplace add jaksa76/microfactory
+/plugin marketplace add https://github.com/jaksa76/microfactory
 /plugin install microfactory
 ```
 
