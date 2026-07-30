@@ -67,7 +67,7 @@ Issue state drives everything; the board is your monitor.
 1. An issue starts in **To Do** (or as an open unassigned GitHub issue / `[ ]` TODO item).
 2. If it needs planning (`needs-plan` label, or `plan_by_default: true` in config), a planner session claims it, writes `plans/<KEY>.md`, pushes it, and transitions the issue to **Awaiting Plan Review**.
 3. A human reviews the plan and transitions the issue to **Plan Approved**.
-4. An implementer session claims it, implements (following the plan when present), runs the tests, pushes, and transitions the issue to **Done** — or opens a PR and transitions to **In Review** when feature branches are enabled.
+4. An implementer session claims it and implements it, following the approved plan — or writing its own plan first (and treating it as approved) when the issue never went through planning. It runs the tests, pushes, and transitions the issue to **Done** — or opens a PR and transitions to **In Review** when feature branches are enabled.
 
 Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
 

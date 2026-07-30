@@ -76,7 +76,9 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 ## Workflow skills
 
-**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md` if present → implement, test, commit → push → PR + In Review (branch mode) or comment + Done (direct mode). Post-push issue updates are best effort.
+**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement, test, commit → push → PR + In Review (branch mode) or comment + Done (direct mode). Post-push issue updates are best effort.
+
+Every implemented issue therefore ends up with a plan file. The difference between the two paths is who approves it: a human for plans written by `plan-next`, nobody for plans the implementer writes for itself.
 
 **plan-next** — one iteration: read config → claim a planning-eligible issue → explore → write `plans/<KEY>.md` (Summary / Files to Change / Implementation Steps / Testing / Risks) → commit and push only the plan → comment the plan URL → transition to Awaiting Plan Review. A human approves the plan; implementer sessions pick the issue up from there.
 

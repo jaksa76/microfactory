@@ -1,11 +1,11 @@
 ---
 name: implement-next
-description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, implement it (following the approved plan if one exists), run the tests, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
+description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or write one first and treat it as approved), implement it, run the tests, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
 ---
 
 # Implement the next issue
 
-One implementation iteration: claim → implement → test → push → update the issue.
+One implementation iteration: claim → plan (if there is no plan yet) → implement → test → push → update the issue.
 
 ## 1. Read configuration
 
@@ -27,13 +27,18 @@ Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `tod
 
 Use a feature branch when `feature_branches: true` in config **or** the issue has a `needs-branch` label; a `skip-branch` label overrides both and forces direct-to-default. When branching, create `feature/<KEY>` from the latest default branch (reset it to the default branch if it already exists).
 
-## 5. Implement
+## 5. Make sure there is a plan
 
-- If `plans/<KEY>.md` exists, it is the **approved plan** — follow it.
-- Otherwise work methodically: explore the relevant code, implement the change following existing style and conventions, and add or update tests.
-- Run the project's tests; the work is not done until they pass. Commit with a brief, descriptive message.
+- If `plans/<KEY>.md` exists, it is the **approved plan** — use it as written.
+- Otherwise write one now: load the `plan-next` skill and follow its analysis and plan-writing steps (its steps 4 and 5) to produce `plans/<KEY>.md`. Treat that plan as **approved** and carry straight on to the implementation — do not stop for review and do not transition the issue to `Awaiting Plan Review`.
 
-## 6. Push and update the issue
+## 6. Implement
+
+- Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built.
+- Implement the change following existing style and conventions, and add or update tests.
+- Run the project's tests; the work is not done until they pass. Commit with a brief, descriptive message, including the plan file when this iteration wrote it.
+
+## 7. Push and update the issue
 
 **Feature-branch mode:**
 1. Push the feature branch.
