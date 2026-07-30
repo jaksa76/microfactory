@@ -29,6 +29,7 @@ skills/
   find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
   find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
   fill-backlog/    run the finders, merge findings, create approved ones as tasks
+  refine-story/    sharpen a vague item via closed proposal-shaped questions (interactive)
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -58,7 +59,7 @@ github_username: ...       # github only
 
 ## Backend skills
 
-Each backend skill documents the same operations for the workflow skills: find eligible issues, claim, view, comment, transition, and create. Creation is deliberately outside the claim protocol — a new task is left unassigned and in its initial status, because an assigned task is not claimable.
+Each backend skill documents the same operations for the workflow skills: find eligible issues, claim, view, comment, transition, create, and update. Creation is deliberately outside the claim protocol — a new task is left unassigned and in its initial status, because an assigned task is not claimable.
 
 ### Claim semantics
 
@@ -101,6 +102,12 @@ Each finder stays in its own lane and hands neighbouring concerns to its sibling
 Finders never edit code and never write to the task backend. `fill-backlog` is the skill that turns findings into work: it loads the finders in its own session, merges duplicates across areas, re-ranks globally (each finder only ranks within its own area), drops anything already in the backlog, **asks the user which findings to create**, and only then writes tasks through the backend skill's create operation — unassigned, labelled by area, with `L`-effort or risky findings tagged `needs-plan` so they go through planning first.
 
 Findings never touch disk: they live in the aggregator's session context, so the backend remains the single source of truth. Approval before creation is deliberate — an unattended sweep opening thirty issues would poison a real backlog, and on Jira or GitHub those writes are visible to the user's whole team.
+
+## Refinement
+
+`refine-story` is the one **interactive** skill in the plugin and deliberately not a `/loop` target. It resolves everything the codebase can answer on its own, then puts only the genuine product choices to the user through `AskUserQuestion` — closed questions, 2–4 shippable options each, recommended one first with its reason, at most four per round. Open questions are banned by design: the user answers by recognising, not by composing.
+
+The output is a rewritten story (goal, context, acceptance criteria, out of scope, decisions, deferred) written back through the backend's update operation, with status and assignee untouched — refining is not claiming.
 
 ## Continuous operation and scaling
 

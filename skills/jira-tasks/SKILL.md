@@ -1,6 +1,6 @@
 ---
 name: jira-tasks
-description: Jira backend operations for the microfactory — find eligible issues, claim one with race verification, create, view, comment, and transition, all via the acli CLI. Used by plan-next and implement-next when the configured backend is jira. Not for general Jira questions.
+description: Jira backend operations for the microfactory — find eligible issues, claim one with race verification, create, update, view, comment, and transition, all via the acli CLI. Used by plan-next and implement-next when the configured backend is jira. Not for general Jira questions.
 ---
 
 # Jira task operations (via acli)
@@ -45,6 +45,14 @@ acli jira workitem create --project "<project key>" --type "Task" --summary "<ti
 ```
 
 Confirm the exact flags with `acli jira workitem create --help` before relying on them (the bundled reference lists the subcommand but not its flag set), and add labels the same way `edit` does if the project uses them. Leave the new item **unassigned** in its initial status: creation is not part of the claim protocol, and an assigned item is not claimable by any session.
+
+## Updating a work item
+
+```
+acli jira workitem edit --key "<KEY>" --summary "<title>" --description "<body>"
+```
+
+Confirm the exact flags with `acli jira workitem edit --help` before relying on them, and pass only what you are changing. Updating an item's content never changes its assignee or status — editing is not claiming.
 
 ## Other operations
 

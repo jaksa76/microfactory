@@ -77,6 +77,8 @@ Issue state drives everything; the board is your monitor.
 
 Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
 
+If a story is too vague to hand to the factory, `/microfactory:refine-story <KEY>` sharpens it first: it works out whatever the codebase already answers, asks you only the real product choices — as multiple-choice proposals, never open questions — and writes acceptance criteria back to the issue.
+
 On GitHub, statuses map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
 ## Legacy

@@ -24,6 +24,7 @@ skills/
   find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
   find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
   fill-backlog/    run the finders, merge findings, create approved ones as tasks
+  refine-story/    sharpen a vague item via closed proposal-shaped questions (interactive)
   jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
