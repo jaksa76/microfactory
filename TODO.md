@@ -1,47 +1,11 @@
- [x] Implement `claim` assign issue, wait 10 s, re-fetch and verify assignee
-- [x] Implement automated tests for `claim` using a dummy jira project
-- [x] Implement a mock agent that appends the issue description to a file and commits it, for testing `loop` without real AI calls
-- [x] Implement `loop` with cloning/pulling repo, running agent command, pushing changes, updating Jira
-- [x] Implement a test for `loop` with a real Jira ticket and the mock agent, verify Jira state transitions correctly
-- [x] Create the copilot worker Dockerfile (install @github/copilot and use gpt-4.1 model)
-- [x] Write a test for the copilot worker image
-- [x] Write `workers/claude/Dockerfile` and test end-to-end
-- [x] Write the `factory` CLI with `status` command
-- [x] Implement `factory add --image <img> --count <n>` — launch worker containers
-- [x] Scaffold `worker-builder`
-- [x] Implement devcontainer.json parsing (git archive)
-- [x] Implement Dockerfile generation layering agent + `loop` + `jira` on the devcontainer base
-- [x] Analyse architecture for potential technical debt and suggest improvements
-- [x] Implement `worker-builder build --devcontainer <path> --type <agent> --tag <tag>`
-- [x] Analyse testability of the system and produce a document with suggested improvements
-- [x] If the agent has hit the rate limit, have it wait and retry after the appropriate time
-- [x] If there are no issues to work on, have the agent wait and poll again after a certain interval
-- [x] Analyse reliability of the worker and produce a document with suggested improvements
-- [x] Claude may need to refresh the token periodically, implement logic to handle this in the worker
-- [x] Claude code logs are still not appearing in the worker logs, investigate and fix this issue
-- [x] Investiage use of credential helper for git and produce a document with possible approaches and their tradeoffs
-- [x] Missing input validation on $PROJECT
-- [x] Implement `claim --for-planning` it works just like 'claim' but uses the `Planning` status instead of `In Progress`
-- [x] `claim --for-planning` should also check for the presence of the `Planning` status in the Jira workflow and error if it's not present
-- [x] `claim --for-planning` should implement the logic defined by `PLAN_BY_DEFAULT` env var and `needs-plan`/`skip-plan` labels  (see docs/planning-phase.md)
-- [x] Update claim to NOT pick up issues that need to be planned when claiming for implementation (see docs/planning-phase.md)
-- [x] Implement a planner loop: worker that does just planning (see docs/planning-phase.md)
-- [x] Planner should generate the plan file in a `plans/` directory at the repo root, named `<ISSUE-KEY>.md`
-- [x] Planner should commit and push the plan file to the repo
-- [x] Planner should post a Jira comment with a direct GitHub link to the plan file after it is pushed
-- [x] Planner should transition issue from `Planning` to `Awaiting Plan Review` after the plan is committed and the comment is posted
-- [x] Graceful fallback when required planning statuses (`Planning`, `Awaiting Plan Review`, `Plan Approved`) are absent
-- [x] If present, the agent should use the plan when implementing an issue
-- [x] loop should create feature branches for issues if the `USE_FEATURE_BRANCHES` env var is set to `true`
-- [x] loop should create a PR for the feature branch
-- [x] loop should link the PR in Jira when `USE_FEATURE_BRANCHES` is enabled
-- [x] loop should transition the issue to `In Review` when the PR is created, with graceful fallback to `In Progress` if `In Review` status is absent
-- [x] remove the tests from loop.bats that check for presence of specific strings in the logs.
-- [x] support ANTHROPIC_API_KEY in addition to CLAUDE_ACCESS_TOKEN
-- [x] add a mechanism to refresh the TOKEN when CLAUDE_ACCESS_TOKEN is used
-- [x] use `--restart=on-failure` when starting workers from the factory
-- [x] ability to override the 20 minute sleep interval using an env var
-- [x] use git credential store instead of embedding credentials in URL
-- [x] set git user.name and user.email configuration
-- [x] reduce the logging from claim command to only log the claimed issue key and summary, not the entire issue details
-- [ ] Add AWS as a deployment option for the factory and workers (See agents-aws.sh from legacy implementation)
+- [ ] create a "start" skill that starts the implementation loop
+- [ ] create a "start-planning" skill that stops the planning loop
+- [ ] the implement-next should plan the user story if no plan exists yet and treat it as approved
+- [ ] create a skill that installs the agentize plugin (github.com/jaksa76/agentize)
+- [ ] create a skill that finds possible software design improvements for the project (refactorings, architecture, patterns, etc.)
+- [ ] create a skill that finds possible testing improvements for the project (unit tests, integration tests, e2e tests, etc.)
+- [ ] create a skill that finds possible library improvements for the project (new libraries, library upgrades, etc.)
+- [ ] create a skill that finds possible UI/UX improvements for the project (flows, pages, navigation, design, etc.)
+- [ ] create a skill that uses the above skills to create a list of tasks for the project
+- [ ] create a skill to refine stories (post questions to the user to clarify the story, avoid open questions, ask questions in form of proposals)
+- [ ] create a skill to break down features/requirement documents into stories
