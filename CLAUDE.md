@@ -16,6 +16,7 @@ See `docs/ARCHITECTURE.md` for the full design.
 .claude-plugin/plugin.json   plugin manifest
 skills/
   init-factory/    interview → .microfactory/config.yaml, backend auth, start /loop
+  start/           start the implementation /loop at the configured interval
   jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
