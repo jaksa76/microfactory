@@ -8,4 +8,4 @@
 - [x] create a skill that finds possible UI/UX improvements for the project (flows, pages, navigation, design, etc.)
 - [x] create a skill that uses the above skills to create a list of tasks for the project
 - [x] create a skill to refine stories (post questions to the user to clarify the story, avoid open questions, ask questions in form of proposals)
-- [ ] create a skill to break down features/requirement documents into stories
+- [x] create a skill to break down features/requirement documents into stories

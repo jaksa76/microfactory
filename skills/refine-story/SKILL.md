@@ -69,6 +69,8 @@ Stop asking when the remaining uncertainty is cheaper to discover during impleme
 **Deferred** — anything left open on purpose, and when it must be answered.
 ```
 
+A story created by `breakdown-feature` arrives in this shape already, with an **Open questions** section — resolving those is exactly this skill's job, so replace that section with **Decisions** and, for anything left open on purpose, **Deferred**.
+
 Preserve every concrete detail the original already had; refinement adds precision, it does not overwrite the author's intent. Where an answer contradicts the original text, record that in **Decisions** rather than silently dropping it.
 
 ## 6. Write it back and stop

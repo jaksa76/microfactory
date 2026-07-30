@@ -30,6 +30,7 @@ skills/
   find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
   fill-backlog/    run the finders, merge findings, create approved ones as tasks
   refine-story/    sharpen a vague item via closed proposal-shaped questions (interactive)
+  breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -102,6 +103,16 @@ Each finder stays in its own lane and hands neighbouring concerns to its sibling
 Finders never edit code and never write to the task backend. `fill-backlog` is the skill that turns findings into work: it loads the finders in its own session, merges duplicates across areas, re-ranks globally (each finder only ranks within its own area), drops anything already in the backlog, **asks the user which findings to create**, and only then writes tasks through the backend skill's create operation — unassigned, labelled by area, with `L`-effort or risky findings tagged `needs-plan` so they go through planning first.
 
 Findings never touch disk: they live in the aggregator's session context, so the backend remains the single source of truth. Approval before creation is deliberate — an unattended sweep opening thirty issues would poison a real backlog, and on Jira or GitHub those writes are visible to the user's whole team.
+
+## Getting work into the backlog
+
+Three skills feed the backlog, and all three create tasks only after the user approves:
+
+- **`fill-backlog`** — sweeps the existing codebase with the finders and proposes improvements.
+- **`breakdown-feature`** — turns a stated intention (a spec, PRD, or feature brief) into stories.
+- **`refine-story`** — sharpens an existing item that is too vague to build.
+
+`breakdown-feature` slices **vertically**: every story is something a user could notice working, and the first is a walking skeleton through the whole feature. Layer decomposition ("schema", "endpoint", "form") is banned — it produces stories that cannot ship and cannot be finished in one iteration. The sizing rule is exactly that: a story must be completable in a single `implement-next` run, or it is an epic and gets split. Stories it cannot fully specify are tagged `needs-refinement` rather than guessed at, which hands them to `refine-story`; both skills write the same story template, so an item does not change shape as it moves between them.
 
 ## Refinement
 
