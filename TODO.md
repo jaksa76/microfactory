@@ -2,7 +2,7 @@
 - [x] create a "start-planning" skill that stops the planning loop
 - [x] the implement-next should plan the user story if no plan exists yet and treat it as approved
 - [x] create a skill that installs the agentize plugin (github.com/jaksa76/agentize)
-- [ ] create a skill that finds possible software design improvements for the project (refactorings, architecture, patterns, etc.)
+- [x] create a skill that finds possible software design improvements for the project (refactorings, architecture, patterns, etc.)
 - [ ] create a skill that finds possible testing improvements for the project (unit tests, integration tests, e2e tests, etc.)
 - [ ] create a skill that finds possible library improvements for the project (new libraries, library upgrades, etc.)
 - [ ] create a skill that finds possible UI/UX improvements for the project (flows, pages, navigation, design, etc.)

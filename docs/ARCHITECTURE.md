@@ -24,6 +24,7 @@ skills/
   start/           start the implementation /loop at the configured interval
   start-planning/  start the planning /loop at the configured interval
   install-agentize/ install the agentize plugin (agent-readiness skills)
+  find-design-improvements/  read-only analysis: candidate refactorings and architecture fixes
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -86,6 +87,12 @@ Every implemented issue therefore ends up with a plan file. The difference betwe
 **start** / **start-planning** — read config → `/loop <implement_interval> /microfactory:implement-next` or `/loop <plan_interval> /microfactory:plan-next`. Shortcuts for turning an already-initialized session into an implementer or a planner without re-running `init-factory`.
 
 `plan-next` and `implement-next` both take an optional issue key to work a specific issue, and both end quietly when no work is available — the `/loop` cadence replaces the old polling waits. Planner and implementer sessions are intentionally separate so planning is not blocked on human review.
+
+## Finder skills
+
+`find-design-improvements` (and, as the backlog adds them, the testing, library, and UI/UX finders) are **read-only analysis passes**: they explore the project and report ranked improvement candidates — Title / Area / Problem / Proposed change / Effort / Payoff / Risk — capped at ~10 and each backed by concrete evidence in the repo.
+
+Finders never edit code and never write to the task backend. A separate skill turns findings into backlog items by loading the finders in its own session and doing the backend writes there, so the backend stays the single source of truth and no findings files are needed on disk.
 
 ## Continuous operation and scaling
 

@@ -46,6 +46,8 @@ In an already-initialized project, `/microfactory:start` and `/microfactory:star
 
 `/microfactory:install-agentize` installs the companion [agentize](https://github.com/jaksa76/agentize) plugin, whose skills assess how ready a project is for agentic coding.
 
+`/microfactory:find-design-improvements` looks over the project and reports ranked refactoring and architecture candidates — read-only, so you decide which ones become backlog items.
+
 A typical setup uses two sessions in the same project:
 
 ```
