@@ -20,6 +20,7 @@ skills/
   start-planning/  start the planning /loop at the configured interval
   install-agentize/ install the agentize plugin (agent-readiness skills)
   find-design-improvements/  read-only analysis: candidate refactorings and architecture fixes
+  find-testing-improvements/ read-only analysis: coverage gaps, pyramid shape, flaky/slow tests
   jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
