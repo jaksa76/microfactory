@@ -46,7 +46,7 @@ In an already-initialized project, `/microfactory:start` and `/microfactory:star
 
 `/microfactory:install-agentize` installs the companion [agentize](https://github.com/jaksa76/agentize) plugin, whose skills assess how ready a project is for agentic coding.
 
-The finder skills look over the project and report ranked improvement candidates — `/microfactory:find-design-improvements` for refactorings and architecture, `/microfactory:find-testing-improvements` for the test suite, `/microfactory:find-library-improvements` for dependencies. They are read-only, so you decide which findings become backlog items.
+The finder skills look over the project and report ranked improvement candidates — `/microfactory:find-design-improvements` for refactorings and architecture, `/microfactory:find-testing-improvements` for the test suite, `/microfactory:find-library-improvements` for dependencies, and `/microfactory:find-ui-improvements` for the interface (it runs the app and looks at it). They are read-only, so you decide which findings become backlog items.
 
 A typical setup uses two sessions in the same project:
 

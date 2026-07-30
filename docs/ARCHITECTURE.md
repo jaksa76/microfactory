@@ -27,6 +27,7 @@ skills/
   find-design-improvements/  read-only analysis: candidate refactorings and architecture fixes
   find-testing-improvements/ read-only analysis: coverage gaps, pyramid shape, flaky/slow tests
   find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
+  find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -92,9 +93,9 @@ Every implemented issue therefore ends up with a plan file. The difference betwe
 
 ## Finder skills
 
-`find-design-improvements`, `find-testing-improvements`, `find-library-improvements` (and, as the backlog adds it, the UI/UX finder) are **read-only analysis passes**: they explore the project and report ranked improvement candidates — Title / Area / Problem / Proposed change / Effort / Payoff / Risk — capped at ~10 and each backed by concrete evidence in the repo.
+`find-design-improvements`, `find-testing-improvements`, `find-library-improvements`, and `find-ui-improvements` are **read-only analysis passes**: they explore the project and report ranked improvement candidates — Title / Area / Problem / Proposed change / Effort / Payoff / Risk — capped at ~10 and each backed by concrete evidence in the repo.
 
-Each finder stays in its own lane and hands neighbouring concerns to its sibling — a testing gap that needs a design seam changed goes to the design finder, not into the testing report.
+Each finder stays in its own lane and hands neighbouring concerns to its sibling — a testing gap that needs a design seam changed goes to the design finder, not into the testing report. `find-ui-improvements` differs from the other three in method: it runs the application and screenshots it, because UI findings that cannot be seen are usually not findings. Screenshots stay in a temp directory and are never committed.
 
 Finders never edit code and never write to the task backend. A separate skill turns findings into backlog items by loading the finders in its own session and doing the backend writes there, so the backend stays the single source of truth and no findings files are needed on disk.
 

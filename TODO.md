@@ -5,7 +5,7 @@
 - [x] create a skill that finds possible software design improvements for the project (refactorings, architecture, patterns, etc.)
 - [x] create a skill that finds possible testing improvements for the project (unit tests, integration tests, e2e tests, etc.)
 - [x] create a skill that finds possible library improvements for the project (new libraries, library upgrades, etc.)
-- [ ] create a skill that finds possible UI/UX improvements for the project (flows, pages, navigation, design, etc.)
+- [x] create a skill that finds possible UI/UX improvements for the project (flows, pages, navigation, design, etc.)
 - [ ] create a skill that uses the above skills to create a list of tasks for the project
 - [ ] create a skill to refine stories (post questions to the user to clarify the story, avoid open questions, ask questions in form of proposals)
 - [ ] create a skill to break down features/requirement documents into stories
