@@ -21,6 +21,7 @@ skills/
   install-agentize/ install the agentize plugin (agent-readiness skills)
   find-design-improvements/  read-only analysis: candidate refactorings and architecture fixes
   find-testing-improvements/ read-only analysis: coverage gaps, pyramid shape, flaky/slow tests
+  find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
   jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
