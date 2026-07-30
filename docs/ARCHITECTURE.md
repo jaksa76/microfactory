@@ -28,6 +28,7 @@ skills/
   find-testing-improvements/ read-only analysis: coverage gaps, pyramid shape, flaky/slow tests
   find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
   find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
+  fill-backlog/    run the finders, merge findings, create approved ones as tasks
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -57,7 +58,7 @@ github_username: ...       # github only
 
 ## Backend skills
 
-Each backend skill documents the same operations for `plan-next`/`implement-next`: find eligible issues, claim, view, comment, transition.
+Each backend skill documents the same operations for the workflow skills: find eligible issues, claim, view, comment, transition, and create. Creation is deliberately outside the claim protocol — a new task is left unassigned and in its initial status, because an assigned task is not claimable.
 
 ### Claim semantics
 
@@ -97,7 +98,9 @@ Every implemented issue therefore ends up with a plan file. The difference betwe
 
 Each finder stays in its own lane and hands neighbouring concerns to its sibling — a testing gap that needs a design seam changed goes to the design finder, not into the testing report. `find-ui-improvements` differs from the other three in method: it runs the application and screenshots it, because UI findings that cannot be seen are usually not findings. Screenshots stay in a temp directory and are never committed.
 
-Finders never edit code and never write to the task backend. A separate skill turns findings into backlog items by loading the finders in its own session and doing the backend writes there, so the backend stays the single source of truth and no findings files are needed on disk.
+Finders never edit code and never write to the task backend. `fill-backlog` is the skill that turns findings into work: it loads the finders in its own session, merges duplicates across areas, re-ranks globally (each finder only ranks within its own area), drops anything already in the backlog, **asks the user which findings to create**, and only then writes tasks through the backend skill's create operation — unassigned, labelled by area, with `L`-effort or risky findings tagged `needs-plan` so they go through planning first.
+
+Findings never touch disk: they live in the aggregator's session context, so the backend remains the single source of truth. Approval before creation is deliberate — an unattended sweep opening thirty issues would poison a real backlog, and on Jira or GitHub those writes are visible to the user's whole team.
 
 ## Continuous operation and scaling
 

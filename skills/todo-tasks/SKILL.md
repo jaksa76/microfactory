@@ -1,6 +1,6 @@
 ---
 name: todo-tasks
-description: Local TODO.md backend operations for the microfactory — find eligible items, claim, comment, and transition by editing checkbox states in a markdown file. Used by plan-next and implement-next when the configured backend is todo. Good for trying out the factory without Jira or GitHub.
+description: Local TODO.md backend operations for the microfactory — find eligible items, claim, create, comment, and transition by editing checkbox states in a markdown file. Used by plan-next and implement-next when the configured backend is todo. Good for trying out the factory without Jira or GitHub.
 ---
 
 # TODO.md task operations
@@ -47,6 +47,12 @@ By mode and the `plan_by_default` setting:
 4. The item text (minus checkbox and tags) is the issue summary; there is no separate description.
 
 This backend is single-user, so no race verification is needed.
+
+## Creating an item
+
+Append a new line to the end of the file: `- [ ] <title>`, with any labels as inline `[tag]` markers (e.g. `- [ ] Rework the auth flow [needs-plan]`). Its line number is the new item's key.
+
+This backend has nowhere to put a description, so the title has to be self-contained; add a single indented note line beneath it for the rationale if it needs one. Never assign or transition a newly created item — creation is not part of the claim protocol, and an item that is not `[ ]` cannot be claimed.
 
 ## Other operations
 

@@ -1,6 +1,6 @@
 ---
 name: jira-tasks
-description: Jira backend operations for the microfactory — find eligible issues, claim one with race verification, view, comment, and transition, all via the acli CLI. Used by plan-next and implement-next when the configured backend is jira. Not for general Jira questions.
+description: Jira backend operations for the microfactory — find eligible issues, claim one with race verification, create, view, comment, and transition, all via the acli CLI. Used by plan-next and implement-next when the configured backend is jira. Not for general Jira questions.
 ---
 
 # Jira task operations (via acli)
@@ -38,10 +38,18 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 6. Transition the issue: to `Planning` (planning mode) or `In Progress` (implementation mode). If the transition is unavailable, warn and continue.
 7. Fetch the issue's summary and description: `acli jira workitem view <KEY> --json`
 
+## Creating a work item
+
+```
+acli jira workitem create --project "<project key>" --type "Task" --summary "<title>" --description "<body>"
+```
+
+Confirm the exact flags with `acli jira workitem create --help` before relying on them (the bundled reference lists the subcommand but not its flag set), and add labels the same way `edit` does if the project uses them. Leave the new item **unassigned** in its initial status: creation is not part of the claim protocol, and an assigned item is not claimable by any session.
+
 ## Other operations
 
 - **View**: `acli jira workitem view <KEY> --json` (summary, description, labels, assignee).
-- **Comment**: `acli jira comment add --issue <KEY> --comment "<text>"`
+- **Comment**: `acli jira workitem comment create --key <KEY> --body "<text>"`
 - **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`
 
 Statuses used by the factory workflow: `Planning`, `Awaiting Plan Review`, `Plan Approved` (set by a human reviewer), `In Progress`, `In Review`, `Done`. Transitions may not exist in every workflow — treat failed transitions after work is done as warnings, not errors.

@@ -1,6 +1,6 @@
 ---
 name: github-tasks
-description: GitHub Issues backend operations for the microfactory — find eligible issues, claim one with race verification, view, comment, and transition (statuses are mapped to labels), all via the gh CLI. Used by plan-next and implement-next when the configured backend is github. Not for general GitHub questions.
+description: GitHub Issues backend operations for the microfactory — find eligible issues, claim one with race verification, create, view, comment, and transition (statuses are mapped to labels), all via the gh CLI. Used by plan-next and implement-next when the configured backend is github. Not for general GitHub questions.
 ---
 
 # GitHub Issues task operations (via gh)
@@ -42,6 +42,14 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 5. If you are not among the assignees, another worker won the race — go back to step 1.
 6. Planning mode only: swap labels — `gh issue edit <N> --add-label "in-planning" --remove-label "in-progress"`.
 7. Fetch title and body: `gh issue view <N> --repo owner/repo --json title,body`
+
+## Creating an issue
+
+```
+gh issue create --repo owner/repo --title "<title>" --body "<body>" --label "<label>"
+```
+
+If a label does not exist the command fails — create it (`gh label create <name> --repo owner/repo`) and retry, as with transitions. Leave the new issue **unassigned and open**: creation is not part of the claim protocol, and an assigned issue is not claimable by any session.
 
 ## Other operations
 
