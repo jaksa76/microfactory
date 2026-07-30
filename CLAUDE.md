@@ -18,6 +18,7 @@ skills/
   init-factory/    interview → .microfactory/config.yaml, backend auth, start /loop
   start/           start the implementation /loop at the configured interval
   start-planning/  start the planning /loop at the configured interval
+  install-agentize/ install the agentize plugin (agent-readiness skills)
   jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)

@@ -44,6 +44,8 @@ It interviews you (backend, project, planning and branching policy, loop interva
 
 In an already-initialized project, `/microfactory:start` and `/microfactory:start-planning` start the implementation and planning loops at the intervals from your config — no interview.
 
+`/microfactory:install-agentize` installs the companion [agentize](https://github.com/jaksa76/agentize) plugin, whose skills assess how ready a project is for agentic coding.
+
 A typical setup uses two sessions in the same project:
 
 ```
