@@ -22,6 +22,7 @@ Worker-based pull model: sessions poll a task-manager backend for eligible work,
 skills/
   init-factory/    interview -> .microfactory/config.yaml, backend auth, start /loop
   start/           start the implementation /loop at the configured interval
+  start-planning/  start the planning /loop at the configured interval
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
   todo-tasks/      local TODO.md backend operations (checkbox states)
@@ -79,7 +80,7 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 **plan-next** — one iteration: read config → claim a planning-eligible issue → explore → write `plans/<KEY>.md` (Summary / Files to Change / Implementation Steps / Testing / Risks) → commit and push only the plan → comment the plan URL → transition to Awaiting Plan Review. A human approves the plan; implementer sessions pick the issue up from there.
 
-**start** — read config → `/loop <implement_interval> /microfactory:implement-next`. A shortcut for turning an already-initialized session into an implementer without re-running `init-factory`.
+**start** / **start-planning** — read config → `/loop <implement_interval> /microfactory:implement-next` or `/loop <plan_interval> /microfactory:plan-next`. Shortcuts for turning an already-initialized session into an implementer or a planner without re-running `init-factory`.
 
 `plan-next` and `implement-next` both take an optional issue key to work a specific issue, and both end quietly when no work is available — the `/loop` cadence replaces the old polling waits. Planner and implementer sessions are intentionally separate so planning is not blocked on human review.
 

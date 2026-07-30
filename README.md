@@ -42,7 +42,7 @@ It interviews you (backend, project, planning and branching policy, loop interva
 
 ## Running
 
-In an already-initialized project, `/microfactory:start` starts the implementation loop at the interval from your config — no interview.
+In an already-initialized project, `/microfactory:start` and `/microfactory:start-planning` start the implementation and planning loops at the intervals from your config — no interview.
 
 A typical setup uses two sessions in the same project:
 

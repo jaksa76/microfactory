@@ -1,6 +1,7 @@
 - [x] create a "start" skill that starts the implementation loop
   - Note: Implemented: skills/start/ reads implement_interval from config and starts /loop /microfactory:implement-next
-- [ ] create a "start-planning" skill that stops the planning loop
+- [x] create a "start-planning" skill that stops the planning loop
+  - Note: Implemented: skills/start-planning/ reads plan_interval from config and starts /loop /microfactory:plan-next (read "stops" as a typo for "starts")
 - [ ] the implement-next should plan the user story if no plan exists yet and treat it as approved
 - [ ] create a skill that installs the agentize plugin (github.com/jaksa76/agentize)
 - [ ] create a skill that finds possible software design improvements for the project (refactorings, architecture, patterns, etc.)
