@@ -1,0 +1,6 @@
+backend: todo
+project: TODO.md
+plan_by_default: false
+feature_branches: false
+implement_interval: 20m
+plan_interval: 10m
