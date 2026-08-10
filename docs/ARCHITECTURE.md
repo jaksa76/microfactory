@@ -84,7 +84,9 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 ## Workflow skills
 
-**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement, test, commit → push → PR + In Review (branch mode) or comment + Done (direct mode). Post-push issue updates are best effort.
+**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement and test → verify the behaviour (UI, e2e) → review the code (quality, security, docs) → one commit → push → PR + In Review (branch mode) or Done (direct mode). Post-push issue updates are best effort.
+
+Both checks run **before** the commit, so an iteration produces a single commit containing the implementation and everything the checks changed. Verification comes first and review second, because verification fixes code — running the review last means nothing reaches the commit unreviewed, and there is no point reviewing an implementation that a failing e2e test is about to rewrite. Each check is bounded to what this iteration touched: the UI pass covers the functionality it built and is skipped when the change has no UI surface, security covers the code it added, and anything wider — unrelated screens, pre-existing e2e failures — is filed as a task rather than fixed, the same line the finder skills draw.
 
 Every implemented issue therefore ends up with a plan file. The difference between the two paths is who approves it: a human for plans written by `plan-next`, nobody for plans the implementer writes for itself.
 

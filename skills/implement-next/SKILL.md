@@ -1,11 +1,11 @@
 ---
 name: implement-next
-description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or write one first and treat it as approved), implement it, run the tests, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
+description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or write one first and treat it as approved), implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
 ---
 
 # Implement the next issue
 
-One implementation iteration: claim → plan (if there is no plan yet) → implement → test → push → update the issue.
+One implementation iteration: claim → plan (if there is no plan yet) → implement → test → verify → review → push → update the issue.
 
 ## 1. Read configuration
 
@@ -15,8 +15,7 @@ Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `tod
 
 ## 2. Prepare the working tree
 
-- If the working tree has uncommitted changes, report it and stop this iteration.
-- Pull the latest default branch.
+Pull the latest default branch.
 
 ## 3. Claim an issue
 
@@ -36,9 +35,33 @@ Use a feature branch when `feature_branches: true` in config **or** the issue ha
 
 - Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built.
 - Implement the change following existing style and conventions, and add or update tests.
-- Run the project's tests; the work is not done until they pass. Commit with a brief, descriptive message, including the plan file when this iteration wrote it.
+- Run the project's tests; the work is not done until they pass.
 
-## 7. Push and update the issue
+Do not commit yet — the two steps below are part of the same change, and one iteration produces one commit.
+
+## 7. Verify the behaviour
+
+Confirm what you built actually works, beyond the unit tests.
+
+- **UI** — skip when the change has no UI surface. Otherwise run the affected part of the application, take screenshots of the functionality this issue implemented, and fix defects in **that** functionality: missing empty, loading or error states, broken layout, obvious accessibility problems.
+- **E2E** — if the project has an e2e suite that can run in this environment, run the tests covering the affected area. Failures block the iteration exactly like unit-test failures.
+
+Anything wider stays out: improvements to screens this issue did not touch, or e2e failures that predate it, get filed as a task through the backend skill's create operation rather than fixed here.
+
+## 8. Review the code
+
+Review the whole diff this iteration produced — the implementation and the fixes from step 7 together. This runs last so nothing reaches the commit unreviewed.
+
+- Follow the project's style guide if it has one; otherwise prioritise simplicity, decoupling and clarity.
+- Check the code this iteration added for security problems and fix the ones it introduced.
+- Update any documentation the change invalidates.
+
+Pre-existing problems elsewhere are out of scope: file them as a task through the backend, not fixed here.
+
+## 9. Commit, push, and update the issue
+
+1. If steps 7–8 changed anything, re-run the project's tests — and the e2e tests from step 7 when the review touched code they cover. They must pass.
+2. Commit the implementation and the review fixes together, with a brief, descriptive message — including the plan file when this iteration wrote it.
 
 **Feature-branch mode:**
 1. Push the feature branch.
@@ -47,9 +70,9 @@ Use a feature branch when `feature_branches: true` in config **or** the issue ha
 
 **Direct mode:**
 1. Push the default branch.
-2. Comment `Implemented: <summary>` on the issue and transition it to `Done`.
+2. Transition the issue to `Done`. No comment — the commit is the record.
 
-Issue comments and transitions after the code is pushed are best effort: if they fail, warn and finish — the pushed code is the important artifact.
+Issue updates after the code is pushed are best effort: if the PR comment or the transition fails, warn and finish — the pushed code is the important artifact.
 
 If you cannot complete the implementation (e.g. tests cannot be made to pass), do **not** transition the issue to Done: push nothing broken, comment on the issue describing what blocked you, and leave it In Progress for a human.
 
