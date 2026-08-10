@@ -77,13 +77,13 @@ Issue state drives everything; the board is your monitor.
 
 Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
 
-If a story is too vague to hand to the factory, `/microfactory:refine-story` sharpens it first. It works out whatever the codebase already answers, then **comments the few real product choices on the issue** and stops — a yes/no confirmation where one option obviously wins, a short menu where the choice is genuinely open, each with a default so ignoring it is safe. Answer in a reply whenever you get to it; a later iteration folds your answers in and writes acceptance criteria back to the issue. Nothing waits on you, so it runs as a loop of its own:
+If a story is too vague to hand to the factory, `/microfactory:refine-story` sharpens it first. It works out whatever the codebase already answers, then **comments the few real product choices on the issue** and stops — a yes/no confirmation where one option obviously wins, a short menu where the choice is genuinely open, each with a default so ignoring it is safe. Answer in a reply whenever you get to it. It never edits your story — the answers stay in the thread, and `plan-next` and `implement-next` read the thread when they pick the issue up. Drop the `needs-refinement` tag yourself once the answers satisfy you. Nothing waits on you, so it runs as a loop of its own:
 
 ```
 /loop 30m /microfactory:refine-story
 ```
 
-Questions with obvious answers are dropped rather than asked, and leaving a story untouched is a fine outcome — the point is to spend as little of your attention as possible. Pass a key (`/microfactory:refine-story MYPROJ-42`) to refine one specific item.
+Questions with obvious answers are dropped rather than asked, and asking nothing at all is a fine outcome — the point is to spend as little of your attention as possible. Each issue gets one round of questions and no more. Pass a key (`/microfactory:refine-story MYPROJ-42`) to refine one specific item.
 
 And if you are starting from a spec rather than a backlog, `/microfactory:breakdown-feature <path-to-doc>` slices it into stories — vertical slices, walking skeleton first, each sized to a single implementation iteration, sequenced by dependency — and creates the ones you approve. The whole intake path is:
 

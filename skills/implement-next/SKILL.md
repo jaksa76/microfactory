@@ -22,6 +22,8 @@ Pull the latest default branch.
 - **No argument**: claim the next implementation-eligible issue using the backend skill's claim protocol (implementation mode). If there is no eligible issue, say "No implementation work available." and end the iteration — the loop cadence handles waiting.
 - **With an issue key argument**: view that issue, assign it to yourself, and transition it to `In Progress` (best effort) instead of searching.
 
+**Then read the issue's comments** through the backend skill's list-comments operation. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. Load `plan-next` and follow its *Reading a refinement thread* section to resolve it. Do this even when a plan already exists: the plan may predate the answers, and where the two disagree the thread is newer — follow it and correct the plan file.
+
 ## 4. Decide on a feature branch
 
 Use a feature branch when `feature_branches: true` in config **or** the issue has a `needs-branch` label; a `skip-branch` label overrides both and forces direct-to-default. When branching, create `feature/<KEY>` from the latest default branch (reset it to the default branch if it already exists).

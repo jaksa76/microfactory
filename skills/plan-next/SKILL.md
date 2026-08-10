@@ -23,6 +23,8 @@ Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `tod
 - **No argument**: claim the next planning-eligible issue using the backend skill's claim protocol (planning mode). If there is no eligible issue, say "No planning work available." and end the iteration — the loop cadence handles waiting.
 - **With an issue key argument**: view that issue, assign it to yourself, and transition it to `Planning` (best effort) instead of searching.
 
+**Then read the issue's comments** through the backend skill's list-comments operation. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. See *Reading a refinement thread* at the end of this skill.
+
 ## 4. Analyze the change
 
 Before writing the plan, explore the codebase to understand what the issue touches and do the analysis the change calls for. Depending on the nature of the issue:
@@ -55,3 +57,18 @@ The plan must be executable by another agent with no context beyond the repo and
 Steps 2–3 are best effort: if they fail, warn and finish — the pushed plan is the important artifact. A human reviews the plan and transitions the issue to `Plan Approved` (or edits the plan); `implement-next` picks it up from there.
 
 Handle **one issue per iteration**.
+
+## Reading a refinement thread
+
+`refine-story` never edits the issue — it only comments — so an issue whose body still reads as vague may already have been settled in its thread. Its comment opens with the marker line `**Refinement questions**` and closes with a `_Posted by microfactory refine-story…_` footer. Everything between the two is what was asked; everything after the footer is somebody's reply. Rely on the marker rather than on comment authorship — the todo backend records no authors, and on a shared project a reply may come from any account.
+
+Resolve the thread like this:
+
+- **An answer wins.** Replies are terse (`1: yes`, `2: b`) and refer to questions by number. Where free text contradicts the options that were offered, follow the free text — the human is right.
+- **An unanswered question takes the default stated in the question.** Silence was declared a safe answer when it was asked.
+- **A "Taken as given" line nobody corrected stands** as a statement about the product.
+- **Ignore other factory comments** — plan links, blocked notes, PR URLs. They are not requirements.
+
+Nothing removes the `needs-refinement` tag automatically; a human does that when the answers satisfy them. Its presence on a claimed issue is not a reason to stop.
+
+Write the settled answers into the plan's **Summary**, so the plan stands on its own and `implement-next` does not have to re-derive them.

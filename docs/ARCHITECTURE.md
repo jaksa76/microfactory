@@ -29,7 +29,7 @@ skills/
   find-library-improvements/ read-only analysis: vulnerable, stale, redundant dependencies
   find-ui-improvements/      read-only analysis: runs the UI, reports flow/state/a11y findings
   find-improvements/         run the finders, merge findings, create approved ones as tasks
-  refine-story/    one refinement iteration: ask via issue comments, fold answers back in
+  refine-story/    one refinement iteration: ask the open product questions via issue comments
   breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
   jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
   github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
@@ -116,25 +116,21 @@ Three skills feed the backlog:
 
 The first two **create** tasks, and both do so only after the user approves — an unattended sweep opening thirty issues would poison a real backlog. `refine-story` creates nothing; it only sharpens what is already there, which is why it can run unattended in a loop.
 
-`breakdown-feature` slices **vertically**: every story is something a user could notice working, and the first is a walking skeleton through the whole feature. Layer decomposition ("schema", "endpoint", "form") is banned — it produces stories that cannot ship and cannot be finished in one iteration. The sizing rule is exactly that: a story must be completable in a single `implement-next` run, or it is an epic and gets split. Stories it cannot fully specify are tagged `needs-refinement` rather than guessed at, which hands them to `refine-story`; both skills write the same story template, so an item does not change shape as it moves between them.
+`breakdown-feature` slices **vertically**: every story is something a user could notice working, and the first is a walking skeleton through the whole feature. Layer decomposition ("schema", "endpoint", "form") is banned — it produces stories that cannot ship and cannot be finished in one iteration. The sizing rule is exactly that: a story must be completable in a single `implement-next` run, or it is an epic and gets split. Stories it cannot fully specify are tagged `needs-refinement` rather than guessed at, which hands them to `refine-story`.
+
+Neither skill imposes a story template. `breakdown-feature` reads how the project already writes items — existing issues, an issue template, a house style in `CONTRIBUTING.md` — and matches it; with no convention to copy it falls back to `As a <who>, I want <what>, so that <why>`, and to a plain imperative for work that has no user in it (an upgrade, a migration, a spike). `refine-story` does not touch the item at all. So an item does not change shape as it moves between them, and neither skill makes the backlog's newest items look foreign next to its older ones. Neither writes acceptance criteria.
 
 ## Refinement
 
-`refine-story` is a third `/loop` target and runs unattended like the other two. It never prompts: questions go **into the task backend as a comment**, the human answers there whenever they get to it, and a later iteration folds the answers back in. That keeps refinement on the same rule as everything else — all cross-session coordination goes through issue state, never through a live session.
+`refine-story` is a third `/loop` target and runs unattended like the other two. It never prompts: questions go **into the task backend as a comment**, and the product owner answers there whenever they get to it. That keeps refinement on the same rule as everything else — all cross-session coordination goes through issue state, never through a live session.
 
-Each iteration acts on at most one item, and an item is in one of three states, derived purely from its comments (a questions comment is delimited by a fixed marker line and footer, since the todo backend has no comment authors):
+**The skill only asks.** It never edits the item, never assigns, never transitions, and never drops the `needs-refinement` tag. The story stays the product owner's: they answer in the thread and remove the tag when the answers satisfy them. Each iteration acts on at most one item and does one thing — an item whose thread already carries the questions comment is skipped, whether or not anyone has replied. One round per item, no second round, no fold-back step.
 
-| State | Action |
-|---|---|
-| no questions comment | analyze, draft, prune, post |
-| questions comment with replies after it | apply answers, rewrite the story, drop `needs-refinement` |
-| questions comment with no replies | skip — the human has the ball |
+The comment is delimited by a fixed marker line (`**Refinement questions**`) and a footer, since the todo backend records no comment authors; everything after the footer is somebody's reply. That delimiter is the contract: **`plan-next` and `implement-next` read the thread** when they claim an issue and resolve it into requirements — an answer wins, an unanswered question takes the default that was stated when it was asked, an uncorrected "taken as given" line stands. `plan-next` writes the result into the plan's Summary so the plan stands alone; `implement-next` reads the thread even when a plan exists, because the plan may predate the answers.
 
-Refinement never assigns and never transitions; the questions comment is what marks an item as being handled.
+The cost of this design is that two skills interpret the same thread independently, and that a vague-looking issue body may already be settled in its comments. The gain is that no agent rewrites a story its author owns.
 
-The value is in the **prune**. A question survives only if it changes what gets built and the repository does not already answer it — precedent, conventions, and existing similar features settle most of them, and those become statements in the story rather than questions. Leaving a story untouched is an accepted outcome. Surviving questions are capped at four and asked in the cheapest form that works: a yes/no confirmation when one option dominates, 2–4 shippable options when the choice is genuinely open, an open question only when the answers cannot be enumerated. Every question carries a default, so silence is a safe answer. Questions are about functionality and user experience; implementation choices belong to `plan-next`, unless the story is itself technical (a performance target, a refactor, a migration), where the technical choices *are* the product choices.
-
-The output is a rewritten story (goal, context, acceptance criteria, out of scope, decisions, deferred) written back through the backend's update operation, with status and assignee untouched — refining is not claiming.
+The value is in the **prune**. A question survives only if it changes what gets built and the repository does not already answer it — precedent, conventions, and existing similar features settle most of them, and those go into the comment as a short "taken as given" list the product owner can correct in the same reply. Asking nothing is an accepted outcome; the comment still gets posted, recording the reasoning and closing the item to further rounds. Surviving questions are capped at four and asked in the cheapest form that works: a yes/no confirmation when one option dominates, 2–4 shippable options when the choice is genuinely open, an open question only when the answers cannot be enumerated. Every question carries a default, so silence is a safe answer. Questions are about functionality and user experience; implementation choices belong to `plan-next`, unless the story is itself technical (a performance target, a refactor, a migration), where the technical choices *are* the product choices.
 
 ## Continuous operation and scaling
 

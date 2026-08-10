@@ -56,7 +56,7 @@ This backend has nowhere to put a description, so the title has to be self-conta
 
 ## Updating an item
 
-Rewrite the item's line text in place, keeping its checkbox character and inline `[tag]` markers. Longer content (acceptance criteria, decisions) goes in indented lines beneath the item, since there is no description field.
+Rewrite the item's line text in place, keeping its checkbox character and inline `[tag]` markers. Longer content (context, decisions) goes in indented lines beneath the item, since there is no description field.
 
 Updating never changes an item's checkbox or claims it — status and refinement are separate concerns. Remember that keys are line numbers: **every line you add beneath an item shifts the keys of all items below it**, so re-read the file to get current keys after an update.
 

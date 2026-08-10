@@ -1,6 +1,6 @@
 ---
 name: breakdown-feature
-description: Turn a feature description or requirements document into a sequenced set of implementable stories and create the approved ones in the task backend — vertical slices, each sized to a single implementation iteration, with acceptance criteria and open questions marked for refinement. Use when the user has a spec, PRD, feature brief, or requirements doc to break down into backlog items.
+description: Turn a feature description or requirements document into a sequenced set of implementable stories and create the approved ones in the task backend — lean vertical slices, each sized to a single implementation iteration, with open questions marked for refinement. Use when the user has a spec, PRD, feature brief, or requirements doc to break down into backlog items.
 ---
 
 # Break a feature down into stories
@@ -11,7 +11,7 @@ This is the front of the pipeline: `breakdown-feature` → `refine-story` (for t
 
 ## 1. Read configuration and take the input
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the backend skill matching `backend` — you need its **create** operation.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the backend skill matching `backend` — you need its **list**, **view**, and **create** operations.
 
 The input is a file path, a URL, or text the user pastes. **Read all of it before slicing anything** — requirement documents contradict themselves across sections, and a breakdown built from the first half will be wrong.
 
@@ -43,27 +43,27 @@ Order the stories so a session claiming them top-down never hits a missing prere
 
 ## 6. Write each story
 
-Use the same template as `refine-story`, so a story created here and refined later does not change shape:
+**Write stories the way this project already writes them.** Before writing the first one, look at how existing items are written — list a dozen recent items in the backend and read a few in full, and check for an issue template (`.github/ISSUE_TEMPLATE/`, a Jira description template, the existing entries in `TODO.md`) or a house style in `CONTRIBUTING.md`. If a convention is there, follow it: the same headings, the same length, the same voice. A backlog whose newest twenty items look nothing like the older ones is worse than an imperfect template.
 
-```markdown
-**Goal** — one sentence: who gets what, and why.
+**If no convention is detectable**, use the agile story form where it fits:
 
-**Context** — what exists already, what this builds on.
-
-**Acceptance criteria**
-- [ ] checkable statements of behaviour, including the unhappy paths
-- [ ] ...
-
-**Out of scope** — what this story deliberately leaves to another.
-
-**Open questions** — what the document does not answer.
+```
+As a <who>, 
+I want <what>, 
+so that <why>.
 ```
 
-Record open questions honestly rather than inventing answers — a document that specifies everything does not exist.
+That is the whole story, and it goes in the description; the title stays a short summary of it ("Invite a teammate by email"), because that is what a board shows. Add a sentence or two beneath only when a reader would otherwise get it wrong — what this builds on, or what it deliberately leaves to another story. On the `todo` backend there is no description at all, so the title carries the story and anything extra goes in indented lines beneath it.
+
+**Where that form does not fit, write something simpler.** Plenty of real work has no user in it — a dependency upgrade, a migration, a spike, a build fix. Forcing "As a developer, I want…" onto those adds words and no meaning. A plain imperative title is a perfectly good task.
+
+Whatever the shape, keep it lean: no acceptance criteria — not as a checklist, not as tickable behaviour statements, not under another heading — and no enumeration of cases the document does state in passing. The story is a placeholder for a conversation, and the conversation happens in `refine-story` and in the code.
+
+**Open questions** are the one addition that earns its place: where the document leaves a real product choice open, list those questions at the end so `refine-story` can settle them. Record them honestly rather than inventing answers — a document that specifies everything does not exist. If there are none, the story ends after its first line.
 
 ## 7. Present the set for approval
 
-Show the ordered list: title, one-line goal, size, dependencies, and which have open questions. **Create nothing until the user approves.** Invite them to cut, merge, or reorder — a twenty-story dump helps nobody, and on Jira or GitHub these writes are visible to their whole team.
+Show the ordered list: title, one-line goal and which have open questions. **Create nothing until the user approves.** Invite them to cut, merge, or reorder — a twenty-story dump helps nobody, and on Jira or GitHub these writes are visible to their whole team.
 
 ## 8. Create and report
 
