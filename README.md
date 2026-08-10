@@ -48,7 +48,7 @@ In an already-initialized project, `/microfactory:start` and `/microfactory:star
 
 The finder skills look over the project and report ranked improvement candidates — `/microfactory:find-design-improvements` for refactorings and architecture, `/microfactory:find-testing-improvements` for the test suite, `/microfactory:find-library-improvements` for dependencies, and `/microfactory:find-ui-improvements` for the interface (it runs the app and looks at it).
 
-`/microfactory:fill-backlog` runs all four, merges and ranks what they found, shows you the list, and creates the ones you pick as tasks in your backend — so the factory has work to do. Nothing is created until you choose. They are read-only, so you decide which findings become backlog items.
+`/microfactory:find-improvements` runs all four, merges and ranks what they found, shows you the list, and creates the ones you pick as tasks in your backend — so the factory has work to do. Nothing is created until you choose. They are read-only, so you decide which findings become backlog items.
 
 A typical setup uses two sessions in the same project:
 

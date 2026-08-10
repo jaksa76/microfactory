@@ -1,9 +1,9 @@
 ---
-name: fill-backlog
+name: find-improvements
 description: Sweep the project for improvements and turn the chosen ones into backlog tasks — runs the design, testing, library, and UI finders, merges and ranks their findings, then creates the ones the user approves in the configured task backend. Use when the user wants to generate a backlog, find work for the factory, or top up the task list.
 ---
 
-# Fill the backlog
+# Find improvements
 
 One sweep: choose areas → run the finders → merge and rank → **get approval** → create tasks → report.
 

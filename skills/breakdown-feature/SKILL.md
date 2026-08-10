@@ -76,4 +76,4 @@ Through the backend skill's create operation:
 
 Then report the created keys in dependency order, and what happens next: refine the flagged ones, then let the factory work down the list.
 
-*Related:* `fill-backlog` also creates tasks, but it sweeps an existing codebase for improvements. This one turns a stated intention into work.
+*Related:* `find-improvements` also creates tasks, but it sweeps an existing codebase for improvements. This one turns a stated intention into work.
