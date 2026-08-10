@@ -84,9 +84,11 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 ## Workflow skills
 
-**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement and test → verify the behaviour (UI, e2e) → review the code (quality, security, docs) → one commit → push → PR + In Review (branch mode) or Done (direct mode). Post-push issue updates are best effort.
+**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement and test → verify the behaviour (UI, e2e) → review the code (quality, security, docs) → one commit → push → PR + In Review (branch mode) or Done (direct mode) → an iteration note if anything went sideways. Post-push issue updates are best effort.
 
 Both checks run **before** the commit, so an iteration produces a single commit containing the implementation and everything the checks changed. Verification comes first and review second, because verification fixes code — running the review last means nothing reaches the commit unreviewed, and there is no point reviewing an implementation that a failing e2e test is about to rewrite. Each check is bounded to what this iteration touched: the UI pass covers the functionality it built and is skipped when the change has no UI surface, security covers the code it added, and anything wider — unrelated screens, pre-existing e2e failures — is filed as a task rather than fixed, the same line the finder skills draw.
+
+The review is **delegated to a fresh agent** that gets the issue, the thread's answers, the plan, the diff and the project's conventions — and deliberately not the implementer's reasoning for its choices. An author reviewing its own diff reads it as intended rather than as written, which is precisely the class of defect a review is for; a cold reader is the cheapest independent judge available inside one iteration. The implementer still decides what to act on, because a reviewer without context produces some findings that are simply wrong, and reports which it rejected.
 
 Every implemented issue therefore ends up with a plan file. The difference between the two paths is who approves it: a human for plans written by `plan-next`, nobody for plans the implementer writes for itself.
 
@@ -131,6 +133,14 @@ The comment is delimited by a fixed marker line (`**Refinement questions**`) and
 The cost of this design is that two skills interpret the same thread independently, and that a vague-looking issue body may already be settled in its comments. The gain is that no agent rewrites a story its author owns.
 
 The value is in the **prune**. A question survives only if it changes what gets built and the repository does not already answer it — precedent, conventions, and existing similar features settle most of them, and those go into the comment as a short "taken as given" list the product owner can correct in the same reply. Asking nothing is an accepted outcome; the comment still gets posted, recording the reasoning and closing the item to further rounds. Surviving questions are capped at four and asked in the cheapest form that works: a yes/no confirmation when one option dominates, 2–4 shippable options when the choice is genuinely open, an open question only when the answers cannot be enumerated. Every question carries a default, so silence is a safe answer. Questions are about functionality and user experience; implementation choices belong to `plan-next`, unless the story is itself technical (a performance target, a refactor, a migration), where the technical choices *are* the product choices.
+
+## Iteration notes
+
+Almost every feedback signal an iteration produces is scoped to the issue it was working on and is discarded when the session ends: the plan that turned out wrong, the story that did not fit one iteration, the convention the codebase documents but does not follow. Nothing else in the factory sees any of it, because sessions are stateless and coordinate only through issue state.
+
+So `implement-next` writes it down where issue state lives. When — and only when — an iteration diverged from what the issue, thread or plan predicted, it comments an **iteration note** on the issue: what it expected, what was actually true, and what would have caught it earlier. An iteration that went as predicted posts nothing, which is what keeps the notes worth reading.
+
+The notes are **evidence, not instructions**. No skill acts on them, and `plan-next` and `implement-next` explicitly ignore them when resolving a thread into requirements — they carry the `**Iteration note**` marker and footer for the same reason `refine-story`'s comments do, so a reader can tell a past post-mortem from a present requirement. Their value is that the same misfire, repeated across issues, becomes visible in the backlog instead of being lost session by session; acting on that is a human's job today.
 
 ## Continuous operation and scaling
 

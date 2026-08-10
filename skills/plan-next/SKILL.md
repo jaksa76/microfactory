@@ -67,7 +67,7 @@ Resolve the thread like this:
 - **An answer wins.** Replies are terse (`1: yes`, `2: b`) and refer to questions by number. Where free text contradicts the options that were offered, follow the free text — the human is right.
 - **An unanswered question takes the default stated in the question.** Silence was declared a safe answer when it was asked.
 - **A "Taken as given" line nobody corrected stands** as a statement about the product.
-- **Ignore other factory comments** — plan links, blocked notes, PR URLs. They are not requirements.
+- **Ignore other factory comments** — plan links, blocked notes, PR URLs, and `**Iteration note**` comments. They are not requirements. An iteration note is a record of how a past iteration went wrong; where it disagrees with the thread's answers, the answers win.
 
 Nothing removes the `needs-refinement` tag automatically; a human does that when the answers satisfy them. Its presence on a claimed issue is not a reason to stop.
 

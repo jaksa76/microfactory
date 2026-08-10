@@ -5,7 +5,7 @@ description: Run one implementation iteration of the microfactory — claim the 
 
 # Implement the next issue
 
-One implementation iteration: claim → plan (if there is no plan yet) → implement → test → verify → review → push → update the issue.
+One implementation iteration: claim → plan (if there is no plan yet) → implement → test → verify → review → push → update the issue → note what surprised you.
 
 ## 1. Read configuration
 
@@ -52,11 +52,18 @@ Anything wider stays out: improvements to screens this issue did not touch, or e
 
 ## 8. Review the code
 
-Review the whole diff this iteration produced — the implementation and the fixes from step 7 together. This runs last so nothing reaches the commit unreviewed.
+The whole diff this iteration produced — the implementation and the fixes from step 7 together — gets reviewed before it is committed, so nothing reaches the commit unreviewed.
 
-- Follow the project's style guide if it has one; otherwise prioritise simplicity, decoupling and clarity.
-- Check the code this iteration added for security problems and fix the ones it introduced.
-- Update any documentation the change invalidates.
+**Hand the review to a fresh agent, not to yourself.** You know why every line is there, so you read the diff as you intended it rather than as it is written; an agent seeing it cold does not. Give it only what a reviewer would legitimately have:
+
+- the issue text and the answers settled in its refinement thread,
+- `plans/<KEY>.md`,
+- the diff of this iteration,
+- the project's style guide, `CLAUDE.md`/`AGENTS.md`, or whatever conventions the repo documents.
+
+Do **not** give it your reasoning for the choices you made — that is the part being tested. Ask it for findings only: correctness, security problems in the code this iteration added, drift from the project's conventions, and simplicity, decoupling and clarity where the project states no rule. If the environment cannot run a separate agent, review the diff yourself against the same list.
+
+Then decide what to act on. The reviewer is working without your context and will sometimes be wrong — a finding that misreads the code is not a defect, and neither is a suggestion that contradicts the plan or the refinement thread. Fix the real ones, and say in your report which findings you rejected and why. Update any documentation the change invalidates.
 
 Pre-existing problems elsewhere are out of scope: file them as a task through the backend, not fixed here.
 
@@ -72,10 +79,28 @@ Pre-existing problems elsewhere are out of scope: file them as a task through th
 
 **Direct mode:**
 1. Push the default branch.
-2. Transition the issue to `Done`. No comment — the commit is the record.
+2. Transition the issue to `Done`. The commit is the record — the only comment is the iteration note below, and only when there is one.
 
 Issue updates after the code is pushed are best effort: if the PR comment or the transition fails, warn and finish — the pushed code is the important artifact.
 
-If you cannot complete the implementation (e.g. tests cannot be made to pass), do **not** transition the issue to Done: push nothing broken, comment on the issue describing what blocked you, and leave it In Progress for a human.
+If you cannot complete the implementation (e.g. tests cannot be made to pass), do **not** transition the issue to Done: push nothing broken, comment on the issue describing what blocked you, and leave it In Progress for a human. That comment stands in for step 10 — write what you would have written there into it, and end the iteration.
+
+## 10. Record what surprised you
+
+An iteration that went as predicted needs no note — say nothing and finish. But when the iteration diverged from what the issue, the thread or the plan led you to expect, that divergence is the only evidence anyone will ever have that the process misfired, and it exists nowhere but in your context right now. Comment it on the issue before you lose it.
+
+Post a note when:
+
+- the plan was wrong or incomplete and you corrected it — say what it got wrong, not that you fixed it,
+- step 7 found something both the plan and the tests missed,
+- the story did not fit one iteration, or you cut scope to make it fit,
+- the refinement thread was ambiguous and you had to choose a reading,
+- the codebase contradicted a convention it documents.
+
+Keep it to a few bullets: what you expected, what was actually true, and — where you can see it — what would have caught it earlier. It is a note about the *process*, not a changelog of the diff; the commit already records that. Skip anything already visible in the plan file or the commit message.
+
+Open the comment with the marker line `**Iteration note**` and close it with `_Posted by microfactory implement-next._`, so later readers can tell it from a requirement. These notes are evidence, not instructions: nothing in the factory acts on them automatically, and `plan-next` and `implement-next` ignore them when they read a thread.
+
+Posting the note is best effort, like every other post-push update.
 
 Handle **one issue per iteration**.
