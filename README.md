@@ -77,7 +77,13 @@ Issue state drives everything; the board is your monitor.
 
 Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
 
-If a story is too vague to hand to the factory, `/microfactory:refine-story <KEY>` sharpens it first: it works out whatever the codebase already answers, asks you only the real product choices — as multiple-choice proposals, never open questions — and writes acceptance criteria back to the issue.
+If a story is too vague to hand to the factory, `/microfactory:refine-story` sharpens it first. It works out whatever the codebase already answers, then **comments the few real product choices on the issue** and stops — a yes/no confirmation where one option obviously wins, a short menu where the choice is genuinely open, each with a default so ignoring it is safe. Answer in a reply whenever you get to it; a later iteration folds your answers in and writes acceptance criteria back to the issue. Nothing waits on you, so it runs as a loop of its own:
+
+```
+/loop 30m /microfactory:refine-story
+```
+
+Questions with obvious answers are dropped rather than asked, and leaving a story untouched is a fine outcome — the point is to spend as little of your attention as possible. Pass a key (`/microfactory:refine-story MYPROJ-42`) to refine one specific item.
 
 And if you are starting from a spec rather than a backlog, `/microfactory:breakdown-feature <path-to-doc>` slices it into stories — vertical slices, walking skeleton first, each sized to a single implementation iteration, sequenced by dependency — and creates the ones you approve. The whole intake path is:
 

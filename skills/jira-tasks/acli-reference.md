@@ -72,7 +72,12 @@ acli jira workitem assign --key "KEY-123" --assignee "user@example.com" --yes
 acli jira workitem transition --key "KEY-123" --status "In Progress" --yes
 acli jira workitem transition --key "KEY-123" --status "Done" --yes
 acli jira workitem comment create --key "KEY-123" --body "Pull request opened: https://..."
+acli jira workitem comment list --key "KEY-123" --json --paginate
+acli jira workitem create --project "MYPROJ" --type "Task" --summary "..." --description "..." --label "needs-plan,ui"
+acli jira workitem edit --key "KEY-123" --summary "..." --description "..." --labels "a,b" --remove-labels "needs-refinement" --yes
 ```
+
+`assign`, `transition`, and `edit` all prompt for confirmation unless given `-y/--yes`, which would hang an unattended session — always pass it. `create` and the `comment` commands do not prompt.
 
 ## Tips
 

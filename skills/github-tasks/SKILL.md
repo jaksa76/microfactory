@@ -63,6 +63,7 @@ Pass only the parts you are changing. Updating an issue's content never changes 
 
 - **View**: `gh issue view <N> --repo owner/repo --json number,title,body,labels,assignees`
 - **Comment**: `gh issue comment <N> --repo owner/repo --body "<text>"`
+- **List comments**: `gh issue view <N> --repo owner/repo --json comments` — oldest first, each with `author.login`, `body`, `createdAt`, `url`, and `viewerDidAuthor` (true for comments this account wrote). `comments` is also a valid `gh issue list --json` field, so a scan that needs comments for several issues can fetch them in the same call as eligibility.
 - **Transition**: GitHub has no issue statuses; the factory maps them to labels:
 
 | Status | Label changes |

@@ -41,23 +41,28 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 ## Creating a work item
 
 ```
-acli jira workitem create --project "<project key>" --type "Task" --summary "<title>" --description "<body>"
+acli jira workitem create --project "<project key>" --type "Task" --summary "<title>" --description "<body>" --label "label-a,label-b"
 ```
 
-Confirm the exact flags with `acli jira workitem create --help` before relying on them (the bundled reference lists the subcommand but not its flag set), and add labels the same way `edit` does if the project uses them. Leave the new item **unassigned** in its initial status: creation is not part of the claim protocol, and an assigned item is not claimable by any session.
+`--label` takes a comma-separated list; drop it if the project uses no labels. Leave the new item **unassigned** in its initial status: creation is not part of the claim protocol, and an assigned item is not claimable by any session.
 
 ## Updating a work item
 
 ```
-acli jira workitem edit --key "<KEY>" --summary "<title>" --description "<body>"
+acli jira workitem edit --key "<KEY>" --summary "<title>" --description "<body>" --yes
 ```
 
-Confirm the exact flags with `acli jira workitem edit --help` before relying on them, and pass only what you are changing. Updating an item's content never changes its assignee or status — editing is not claiming.
+Pass only what you are changing. Labels are `--labels "a,b"` to set and `--remove-labels "c"` to remove — that is how a `needs-plan` or `needs-refinement` tag comes off once the work it asked for is done.
+
+**Always pass `--yes`.** Without it `edit` prompts for confirmation, which hangs a session running unattended in a `/loop`. The same goes for `assign` and `transition`.
+
+Updating an item's content never changes its assignee or status — editing is not claiming.
 
 ## Other operations
 
 - **View**: `acli jira workitem view <KEY> --json` (summary, description, labels, assignee).
 - **Comment**: `acli jira workitem comment create --key <KEY> --body "<text>"`
+- **List comments**: `acli jira workitem comment list --key <KEY> --json --paginate` (oldest first by default; `--order` takes `created`/`updated` with a `+`/`-` prefix).
 - **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`
 
 Statuses used by the factory workflow: `Planning`, `Awaiting Plan Review`, `Plan Approved` (set by a human reviewer), `In Progress`, `In Review`, `Done`. Transitions may not exist in every workflow — treat failed transitions after work is done as warnings, not errors.
