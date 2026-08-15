@@ -8,11 +8,11 @@ No scripts, no containers, no daemon — the factory is a handful of markdown **
 
 ```mermaid
 flowchart TD
-  B["Task backend<br/>Jira · GitHub Issues · TODO.md"]
-  S["Claude Code sessions<br/>running /loop"]
-  G["Git"]
-  B <-->|claim, comment, transition| S
-  S -->|push code and plans| G
+  B["Backlog"]
+  S["Microfactory"]
+  G["Product"]
+  B <-->|claim tasks| S
+  S -->|push code| G
 ```
 
 ## Installation
