@@ -4,19 +4,15 @@ An AI coding factory that fits in a Claude Code session. A plugin that turns a t
 
 ## How it works
 
-The factory is a set of **skills** — markdown instructions, no scripts and no containers. A Claude Code session in your project runs one skill per work iteration:
+No scripts, no containers, no daemon — the factory is a handful of markdown **skills**. A Claude Code session in your project claims an issue from your task manager, implements it, and pushes. Claude Code's `/loop` makes it repeat on an interval; the claim protocol (assign, wait, verify) makes several sessions safe to run side by side, because the task manager is the single source of truth.
 
-- `/microfactory:implement-next` — claim the next eligible issue, implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue.
-- `/microfactory:plan-next` — claim the next issue that needs a plan, write `plans/<KEY>.md`, push it, and put the issue up for human review.
-
-Continuous operation comes from Claude Code's `/loop`, which re-runs a skill on an interval. Parallelism comes from running several sessions — the claim protocol (assign, wait, verify) makes concurrent workers safe because the task manager is the single source of truth.
-
-```
-[Task backend: Jira | GitHub Issues | TODO.md]
-   ↑↓ claim, comment, transition
-[Claude Code sessions running /loop]
-   ↓ push code and plans
-[Git]
+```mermaid
+flowchart TD
+  B["Task backend<br/>Jira · GitHub Issues · TODO.md"]
+  S["Claude Code sessions<br/>running /loop"]
+  G["Git"]
+  B <-->|claim, comment, transition| S
+  S -->|push code and plans| G
 ```
 
 ## Installation
