@@ -11,7 +11,7 @@ flowchart TD
   B["Backlog"]
   S["Microfactory"]
   G["Product"]
-  B <-->|claim tasks| S
+  B -->|claim tasks| S
   S -->|push code| G
 ```
 

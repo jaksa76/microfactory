@@ -1,7 +1,7 @@
 {
   "name": "microfactory",
   "description": "Turn a task backlog (Jira, GitHub Issues, or a TODO.md file) into a continuous stream of planned and implemented changes. Provides skills to claim, plan, and implement issues, driven by /loop sessions.",
-  "version": "1.1.0",
+  "version": "3.2.0",
   "author": {
     "name": "jaksa76"
   }
