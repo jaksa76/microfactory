@@ -16,8 +16,13 @@
   - Note: What that surfaced: the skill had exactly one fallback sentence covering both "the environment cannot run an agent" and "the operator chose not to", which are different situations that a reader of the commit needs told apart. The change now distinguishes them and requires the report to say which applied. A policy that forbids subagents is a third case, distinct from both, and is not yet named anywhere.
   - Note: The self-review did find two real defects (an unconditional description of the review step in the ARCHITECTURE pipeline summary, and an overloaded sentence), so the fallback path is not inert — but it was the author reading its own diff, which is the exact weakness step 8 exists to cover. Treat this iteration's review as weaker evidence than a cold one.
   - Note: _Posted by microfactory implement-next._
-- [ ] run the implement-next review subagents in the foreground, not in the background
+- [x] run the implement-next review subagents in the foreground, not in the background
   - Note: The iteration must not commit or push before the review findings are in; a backgrounded reviewer lets step 9 run ahead of step 8. State explicitly in implement-next that the review agent is awaited, and that several reviewers (when used) are launched together but all awaited before any commit.
+  - Note: **Iteration note**
+  - Note: The cold review was skipped again for the same reason as TODO-12 — this session is instructed not to spawn subagents unless asked — so a change about awaiting review agents shipped without one. Two of the last two iterations have now taken that fallback, which makes it the normal path here rather than the exception the skill treats it as.
+  - Note: Expected the change to be one sentence. It was three, because the bare rule under-specifies twice: awaiting each reviewer in turn would forbid parallel launches for no gain, and stopping the rule at step 8's end leaves step 9.1's test re-run outside the gate. Both were found while drafting, not while reviewing.
+  - Note: The self-review caught one real defect: the word "boundary" was doing double duty and could be read as letting step 9.1 start while a review was outstanding, contradicting the sentence above it. Reworded before commit.
+  - Note: _Posted by microfactory implement-next._
 - [ ] make the "plan first if no plan exists" step of implement-next optional, controlled by an `auto_plan` setting in .microfactory/config.yaml (default off)
   - Note: Step 5 currently writes a plan and self-approves it whenever plans/<KEY>.md is missing. When the team wants planning to happen only in the planner loop, implement-next should instead implement directly from the issue and its refinement thread; a `needs-plan` issue with no approved plan is still never implementable.
 - [ ] capture lessons learnt while completing a story in CLAUDE.md (or the project's AGENTS.md) as part of implement-next

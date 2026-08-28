@@ -67,6 +67,10 @@ This setting chooses *who* reviews, never *whether*. When the cold review is off
 
 Do **not** give it your reasoning for the choices you made — that is the part being tested. Ask it for findings only: correctness, security problems in the code this iteration added, drift from the project's conventions, and simplicity, decoupling and clarity where the project states no rule. If the environment cannot run a separate agent, review the diff yourself against the same list and say so — that is a capability the environment lacks, not a configuration choice, and the two are worth telling apart in the report.
 
+**Wait for the findings.** The review is worth having only if it lands before the commit does, so nothing in step 9 begins while a review is outstanding — a reviewer still reading while the push goes out has produced a post-mortem, not a review. Where delegated agents run detached unless told otherwise, ask for the form that hands you the findings before you continue. If you use more than one reviewer, launch them together and await all of them; the rule is that findings precede the commit, not that reviewers run one at a time.
+
+The requirement outlives this step: what has to be true before the commit is that no finding is still outstanding. Step 9.1 re-runs the tests when the review changed something, so a finding arriving after that run invalidates it — act on the finding and run the tests again before committing.
+
 Then decide what to act on. The reviewer is working without your context and will sometimes be wrong — a finding that misreads the code is not a defect, and neither is a suggestion that contradicts the plan or the refinement thread. Fix the real ones, and say in your report which findings you rejected and why. Update any documentation the change invalidates.
 
 Pre-existing problems elsewhere are out of scope: file them as a task through the backend, not fixed here.
