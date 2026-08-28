@@ -5,7 +5,7 @@ description: Run one implementation iteration of the microfactory — claim the 
 
 # Implement the next issue
 
-One implementation iteration: claim → settle the plan → implement → test → verify → review → push → update the issue → note what surprised you.
+One implementation iteration: claim → settle the plan → implement → test → verify → review → push → update the issue → record what you learned.
 
 ## 1. Read configuration
 
@@ -42,7 +42,7 @@ This setting never lets an issue skip planning that was meant to have one: a `ne
 
 ## 6. Implement
 
-- Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built. Where step 5 settled on no plan file, the issue and its thread play that role and there is nothing to correct — the divergence goes in the iteration note instead.
+- Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built. Where step 5 settled on no plan file, the issue and its thread play that role and there is nothing to correct — step 10 decides whether the divergence is worth recording anywhere.
 - Implement the change following existing style and conventions, and add or update tests.
 - Run the project's tests; the work is not done until they pass.
 
@@ -94,28 +94,36 @@ Pre-existing problems elsewhere are out of scope: file them as a task through th
 
 **Direct mode:**
 1. Push the default branch.
-2. Transition the issue to `Done`. The commit is the record — the only comment is the iteration note below, and only when there is one.
+2. Transition the issue to `Done`. The commit is the record; nothing is commented on the issue.
 
 Issue updates after the code is pushed are best effort: if the PR comment or the transition fails, warn and finish — the pushed code is the important artifact.
 
-If you cannot complete the implementation (e.g. tests cannot be made to pass), do **not** transition the issue to Done: push nothing broken, comment on the issue describing what blocked you, and leave it In Progress for a human. That comment stands in for step 10 — write what you would have written there into it, and end the iteration.
+If you cannot complete the implementation (e.g. tests cannot be made to pass), do **not** transition the issue to Done: push nothing broken, comment on the issue describing what blocked you, and leave it In Progress for a human. That comment is about this issue's state, which is the backlog's business; step 10 still applies separately to anything durable you learned on the way.
 
-## 10. Record what surprised you
+## 10. Record what you learned
 
-An iteration that went as predicted needs no note — say nothing and finish. But when the iteration diverged from what the issue, the thread or the plan led you to expect, that divergence is the only evidence anyone will ever have that the process misfired, and it exists nowhere but in your context right now. Comment it on the issue before you lose it.
+An iteration that went as predicted records nothing — finish and stop. But when it diverged from what the issue, the thread or the plan led you to expect, that divergence exists nowhere but in your context right now, and the next iteration starts cold. Write it where it will be read again.
 
-Post a note when:
+**Nothing goes on the issue.** The backlog is a progress indicator, not a filing cabinet; a comment there is read once, by nobody. Route what you learned by its shape:
 
-- the plan was wrong or incomplete and you corrected it — say what it got wrong, not that you fixed it,
-- step 7 found something both the plan and the tests missed,
-- the story did not fit one iteration, or you cut scope to make it fit,
-- the refinement thread was ambiguous and you had to choose a reading,
-- the codebase contradicted a convention it documents.
+| What you learned | Where it goes |
+|---|---|
+| A durable fact about this project, short and relevant to any future change | `CLAUDE.md` — or `AGENTS.md`, whichever the project uses |
+| A procedure — how something is done here, in steps | a new skill, whose `description` names when to use it |
+| Reference material too bulky for either | `docs/LESSONS-<subject>.md`, pointed at from whichever file above names the trigger |
+| A judgement about what ought to change | `docs/LESSONS.md` |
 
-Keep it to a few bullets: what you expected, what was actually true, and — where you can see it — what would have caught it earlier. It is a note about the *process*, not a changelog of the diff; the commit already records that. Skip anything already visible in the plan file or the commit message.
+Four rules make this safe to do unattended:
 
-Open the comment with the marker line `**Iteration note**` and close it with `_Posted by microfactory implement-next._`, so later readers can tell it from a requirement. These notes are evidence, not instructions: nothing in the factory acts on them automatically, and `plan-next` and `implement-next` ignore them when they read a thread.
+- **Facts go to the instruction file; judgements go to `LESSONS.md`.** A fact is something a future agent could verify in the repo — this build needs that step, that module contradicts the convention it documents. A judgement is what *should* be true. You have seen one iteration, which is not enough to set policy, so write what you found and leave what to do about it to a human.
+- **Integrate, do not append.** A fact belongs in the section that already covers its subject, in a line or two of the surrounding prose. No `## Lessons` heading, no dated entries, no issue keys — git already records when and why. If it cannot be said that briefly inside prose that already exists, it is not a fact yet; it is a judgement.
+- **Read the destination first, and say nothing if it is already there.** This is what stops a standing condition — an environment that cannot run subagents, a service unavailable in this checkout — from writing the same thing every iteration for as long as the condition lasts. Recurring is not the same as new.
+- **Not about this diff, and not about this session.** The commit records the diff. Where you happened to be running is a fact about the environment, not about the project, and belongs in neither destination.
 
-Posting the note is best effort, like every other post-push update.
+When a `LESSONS-*.md` file is the destination, the pointer to it must name the **situation**, not the topic: "when changing a config key, read `docs/LESSONS-config.md` first" gets followed; "see `docs/LESSONS.md`" does not, because nothing tells a reader when it applies.
+
+A one-off — this plan was wrong, this story did not fit — is usually not durable and is recorded nowhere. It becomes a judgement worth writing down only once you can say it as a pattern: plans here are consistently wrong about X.
+
+Commit what you wrote with the same change, so the lesson and the work that produced it arrive together.
 
 Handle **one issue per iteration**.

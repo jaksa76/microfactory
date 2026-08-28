@@ -52,7 +52,7 @@ This backend is single-user, so no race verification is needed.
 
 Append a new line to the end of the file: `- [ ] <title>`, with any labels as inline `[tag]` markers (e.g. `- [ ] Rework the auth flow [needs-plan]`). Its line number is the new item's key.
 
-This backend has nowhere to put a description, so the title has to be self-contained; add a single indented note line beneath it for the rationale if it needs one. Never assign or transition a newly created item — creation is not part of the claim protocol, and an item that is not `[ ]` cannot be claimed.
+This backend has nowhere to put a description, so the title has to be self-contained; add a single indented note line beneath it for the rationale only if necessary — the backlog is a progress indicator, and a title that needs explaining is usually a title that needs rewriting. Never assign or transition a newly created item — creation is not part of the claim protocol, and an item that is not `[ ]` cannot be claimed.
 
 ## Updating an item
 

@@ -41,10 +41,11 @@ legacy/            previous implementations (reference only)
 
 - Skills are instructions, not code: they describe *what* to do and name example commands; the executing agent adapts them to the user's OS/shell. Don't encode brittle one-liners that only work in bash.
 - No secrets anywhere: backend credentials live in `acli`/`gh` native auth; `.microfactory/config.yaml` holds settings only.
-- The task backend is the single source of truth. All cross-session coordination goes through issue state (assignee, status/labels/checkboxes) — never through local files.
+- The task backend is the single source of truth for **work**: assignment, status and all cross-session coordination go through issue state (assignee, status/labels/checkboxes), never through local files. It is a progress indicator, not a filing cabinet — durable **knowledge** goes the other way, into `CLAUDE.md`, a skill, or `docs/LESSONS*.md`, committed with the change that taught it.
 - The claim protocol (assign → wait → verify → retry) is what makes concurrent sessions safe. Any change to a backend skill must preserve it.
 - Workflow skills (`plan-next`, `implement-next`) stay backend-agnostic: they delegate all task operations to the backend skills.
 - Keep frontmatter `description` fields precise — they are how the model decides to load a skill.
+- Making something optional invalidates every sentence that assumed it, and those sentences rarely name it — grep finds none of them. Re-read each affected file end to end after adding a setting.
 
 ## Testing
 

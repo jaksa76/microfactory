@@ -86,7 +86,7 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 ## Workflow skills
 
-**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, or when none exists write one and treat it as approved (`auto_plan` on) or work from the issue and its thread (`auto_plan` off, the default) → implement and test → verify the behaviour (UI, e2e) → review the code (cold review by default; `deep_review` config or `needs-review` label, `skip-review` wins) → one commit → push → PR + In Review (branch mode) or Done (direct mode) → an iteration note if anything went sideways. Post-push issue updates are best effort.
+**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, or when none exists write one and treat it as approved (`auto_plan` on) or work from the issue and its thread (`auto_plan` off, the default) → implement and test → verify the behaviour (UI, e2e) → review the code (cold review by default; `deep_review` config or `needs-review` label, `skip-review` wins) → one commit → push → PR + In Review (branch mode) or Done (direct mode) → record anything durable it learned in the project's own files. Post-push issue updates are best effort.
 
 Both checks run **before** the commit, so an iteration produces a single commit containing the implementation and everything the checks changed. Verification comes first and review second, because verification fixes code — running the review last means nothing reaches the commit unreviewed, and there is no point reviewing an implementation that a failing e2e test is about to rewrite. Each check is bounded to what this iteration touched: the UI pass covers the functionality it built and is skipped when the change has no UI surface, security covers the code it added, and anything wider — unrelated screens, pre-existing e2e failures — is filed as a task rather than fixed, the same line the finder skills draw.
 
@@ -138,13 +138,28 @@ The cost of this design is that two skills interpret the same thread independent
 
 The value is in the **prune**. A question survives only if it changes what gets built and the repository does not already answer it — precedent, conventions, and existing similar features settle most of them, and those go into the comment as a short "taken as given" list the product owner can correct in the same reply. Asking nothing is an accepted outcome; the comment still gets posted, recording the reasoning and closing the item to further rounds. Surviving questions are capped at four and asked in the cheapest form that works: a yes/no confirmation when one option dominates, 2–4 shippable options when the choice is genuinely open, an open question only when the answers cannot be enumerated. Every question carries a default, so silence is a safe answer. Questions are about functionality and user experience; implementation choices belong to `plan-next`, unless the story is itself technical (a performance target, a refactor, a migration), where the technical choices *are* the product choices.
 
-## Iteration notes
+## Lessons
 
-Almost every feedback signal an iteration produces is scoped to the issue it was working on and is discarded when the session ends: the plan that turned out wrong, the story that did not fit one iteration, the convention the codebase documents but does not follow. Nothing else in the factory sees any of it, because sessions are stateless and coordinate only through issue state.
+Almost every feedback signal an iteration produces is scoped to the issue it was working on and is discarded when the session ends: the plan that turned out wrong, the convention the codebase documents but does not follow, the build step nobody wrote down. Sessions are stateless and coordinate only through issue state, so nothing else in the factory ever sees any of it.
 
-So `implement-next` writes it down where issue state lives. When — and only when — an iteration diverged from what the issue, thread or plan predicted, it comments an **iteration note** on the issue: what it expected, what was actually true, and what would have caught it earlier. An iteration that went as predicted posts nothing, which is what keeps the notes worth reading.
+Comments on the issue were the first answer and the wrong one. The backlog is a **progress indicator**: what is queued, in flight, and done. Prose filed there is read once, by whoever was already looking at that issue, and never again — and because a comment has no memory of what previous comments said, a standing condition (an environment that cannot run a second agent, a service missing from this checkout) writes an identical note every iteration, for as long as it lasts. On a twenty-minute loop that is dozens of copies a day.
 
-The notes are **evidence, not instructions**. No skill acts on them, and `plan-next` and `implement-next` explicitly ignore them when resolving a thread into requirements — they carry the `**Iteration note**` marker and footer for the same reason `refine-story`'s comments do, so a reader can tell a past post-mortem from a present requirement. Their value is that the same misfire, repeated across issues, becomes visible in the backlog instead of being lost session by session; acting on that is a human's job today.
+So `implement-next` writes what it learned into **the project's own files**, routed by the shape of the lesson:
+
+| Shape | Destination |
+|---|---|
+| A short, durable fact about the project | `CLAUDE.md` / `AGENTS.md`, integrated into the section that covers it |
+| A procedure | a new skill, whose `description` names when it applies |
+| Bulky reference material | `docs/LESSONS-<subject>.md` |
+| A judgement about what ought to change | `docs/LESSONS.md` |
+
+Two distinctions carry the design. **Facts against judgements**: a fact is verifiable in the repo and goes where agents will load it; a judgement is what *should* change, and one iteration is not a mandate to set policy, so it waits in `LESSONS.md` for a human. **Integration against accumulation**: a fact is worked into existing prose in a line or two, never appended to a growing list, which keeps the instruction file a document rather than a changelog and forces the iteration to understand what is already written.
+
+The destination files also give the factory something the backlog never had — somewhere to look before writing. An iteration reads the destination first and stays silent if the lesson is already there, which is what stops recurring conditions from accumulating. This is the same "asked is asked" check `refine-story` performs against its own marker, applied to knowledge instead of questions.
+
+Skills are the interesting destination. A lesson that is really a procedure becomes a skill, and skills are already a lazily loaded, trigger-indexed store: the `description` field states when to load it and the harness does the rest. Where a `LESSONS-*.md` file is used instead, its pointer has to name the situation rather than the subject — "when changing a config key, read this first" is followed, "see LESSONS.md" is not — because a reference nothing knows when to open is a reference nobody opens.
+
+The cost of routing by shape is that an iteration has to judge which destination applies, unattended, and will sometimes choose wrong. The gain is that the knowledge lands where it is loaded rather than where it is filed, and the backlog goes back to being a list of work.
 
 ## Continuous operation and scaling
 
