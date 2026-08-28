@@ -18,7 +18,7 @@
   - Note: _Posted by microfactory implement-next._
 - [ ] run the implement-next review subagents in the foreground, not in the background
   - Note: The iteration must not commit or push before the review findings are in; a backgrounded reviewer lets step 9 run ahead of step 8. State explicitly in implement-next that the review agent is awaited, and that several reviewers (when used) are launched together but all awaited before any commit.
-- [ ] make the "plan first if no plan exists" step of implement-next optional, controlled by an `auto_plan` setting in .microfactory/config.yaml (default on)
+- [ ] make the "plan first if no plan exists" step of implement-next optional, controlled by an `auto_plan` setting in .microfactory/config.yaml (default off)
   - Note: Step 5 currently writes a plan and self-approves it whenever plans/<KEY>.md is missing. When the team wants planning to happen only in the planner loop, implement-next should instead implement directly from the issue and its refinement thread; a `needs-plan` issue with no approved plan is still never implementable.
 - [ ] capture lessons learnt while completing a story in CLAUDE.md (or the project's AGENTS.md) as part of implement-next
   - Note: Step 10 posts an iteration note on the issue, where nothing ever reads it again. When the divergence is a durable fact about the project (an undocumented convention, a build step, a trap in the codebase) it belongs in the project's instruction file, committed with the same change. Needs a rule for what is durable enough to write down, and an edit discipline that keeps CLAUDE.md from growing without bound.
