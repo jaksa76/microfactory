@@ -23,7 +23,7 @@
   - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <refine_interval> /microfactory:refine-story. refine-story already skips items carrying its **Refinement questions** marker; verify that skip holds for every backend so a loop never re-asks a refined story, and that the loop ends quietly when all eligible items are already refined.
 - [?] run each implement-next iteration in a separate context so no state carries between implementations [needs-plan]
   - Note: A long-running /loop accumulates every previous iteration's context, which makes later iterations slower, more expensive and prone to leaking assumptions from an unrelated story. Options include delegating the iteration body to a subagent or launching a fresh session per iteration; the constraint is that the backend stays the only cross-iteration state, so whatever runs must be able to claim, push and update the issue on its own.
-  - Note: Plan written: plans/TODO-29.md — awaiting review.
+  - Note: Plan written: plans/TODO-24.md — awaiting review.
 - [ ] create a skill that reviews all the work done in a session and sends feedback for improving the microfactory itself [needs-plan]
   - Note: Reads the iteration notes, plans, diffs and refinement threads produced in the session and turns the recurring failures into concrete proposals for the skills themselves (what misled the planner, what the reviewer kept catching, where a story was the wrong size). Needs somewhere to send them — issues in the microfactory repo via a backend of its own, or a local report file — which is the main thing to settle before implementing.
 - [ ] run the microfactory feedback skill when an implementation iteration finds no work

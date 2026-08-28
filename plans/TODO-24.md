@@ -1,4 +1,4 @@
-# TODO-29: run each implement-next iteration in a separate context
+# TODO-24: run each implement-next iteration in a separate context
 
 ## Summary
 
@@ -23,8 +23,8 @@ and headless tool permissions, and takes the live session view away from the use
 skill, and `/clear` inside a loop session would take the loop with it.
 
 **Choose A.** Beyond fitting the existing shape, it is the only option that leaves the factory a place
-to stand for the two feedback items already in the backlog. TODO-31 (a skill that reviews all the work
-done in a session) and TODO-33 (run it when out of work) both need *something* that has seen more than
+to stand for the two feedback items already in the backlog. TODO-27 (a skill that reviews all the work
+done in a session) and TODO-29 (run it when out of work) both need *something* that has seen more than
 one iteration. Under A that is the dispatcher, holding one compact report per iteration; under B
 nothing accumulates anywhere and those two items lose their raw material entirely. Isolating the
 iterations and keeping a thin trace of them are the same design decision, so this plan makes the
@@ -75,7 +75,7 @@ reason to flip.
 5. **`docs/ARCHITECTURE.md`** — subsection under *Continuous operation and scaling*: the dispatcher
    holds no work state, one iteration is one agent, and this is the same statelessness the claim
    protocol already assumes, now enforced by the execution shape rather than by convention. Note the
-   dependency: TODO-31's feedback skill reads the dispatcher's reports.
+   dependency: TODO-27's feedback skill reads the dispatcher's reports.
 6. **`README.md`** — the two `/loop` examples under Workflow and the one in Running teach the
    accumulating form. Update them, or the documented path contradicts the skill.
 7. **`CLAUDE.md`** — one line under Conventions.
@@ -101,11 +101,11 @@ No automated suite for the skills (CLAUDE.md). Verification:
   step this backlog just made configurable. Handled by step 3 — report the constraint, never silently
   drop the review.
 - **The dispatcher accumulates reports.** Smaller than diffs, but not nothing over fifty iterations.
-  Bounding the report to three fields is the mitigation; if it still grows, the fix belongs to TODO-31
+  Bounding the report to three fields is the mitigation; if it still grows, the fix belongs to TODO-27
   (which consumes them), not here.
-- **Interaction with TODO-23** (capture lessons in `CLAUDE.md`). That item exists *because* iteration
+- **Interaction with TODO-18** (capture lessons in `CLAUDE.md`). That item exists *because* iteration
   context is lost, and this change makes the loss structural rather than incidental. It strengthens the
-  case for TODO-23 rather than conflicting with it — worth one sentence in the ARCHITECTURE subsection
+  case for TODO-18 rather than conflicting with it — worth one sentence in the ARCHITECTURE subsection
   so the two are read together.
 - **A dispatched agent inheriting a dirty working tree** from a failed predecessor. `implement-next`
   step 2 pulls but does not check for uncommitted changes, unlike `plan-next` step 2 which stops. Out
@@ -113,6 +113,6 @@ No automated suite for the skills (CLAUDE.md). Verification:
 - **Loss of the live view.** The user currently watches an iteration work; afterwards they watch a
   dispatcher report on it. The backlog is still the monitor, per the plugin's own line, but this is a
   real change in feel and belongs in the README wording.
-- **Scope creep into TODO-19** (foreground vs. background review agents). This plan says the dispatcher
+- **Scope creep into TODO-14** (foreground vs. background review agents). This plan says the dispatcher
   *awaits* its iteration agent, which is the same underlying concern one level up; keep the decision in
-  TODO-19 and reference it rather than restating it.
+  TODO-14 and reference it rather than restating it.
