@@ -9,8 +9,13 @@
 - [x] create a skill that uses the above skills to create a list of tasks for the project
 - [x] create a skill to refine stories (post questions to the user to clarify the story, avoid open questions, ask questions in form of proposals)
 - [x] create a skill to break down features/requirement documents into stories
-- [ ] make the cold review in implement-next optional, controlled by a `deep_review` setting in .microfactory/config.yaml (default on) and a per-issue `skip-review` / `needs-review` tag override
+- [x] make the cold review in implement-next optional, controlled by a `deep_review` setting in .microfactory/config.yaml (default on) and a per-issue `skip-review` / `needs-review` tag override
   - Note: Step 8 of implement-next always hands the diff to a fresh reviewing agent. That is worth it for real changes but doubles the cost of a one-line fix, so it needs a switch like plan_by_default and feature_branches already have, plus the matching interview question in init-factory and a row in ARCHITECTURE.md.
+  - Note: **Iteration note**
+  - Note: Expected to hand the diff to a fresh reviewing agent, as step 8 prescribes. This session is instructed not to spawn subagents unless the user asks for one, so the cold review fell back to a self-review against the same checklist — the first exercise of this issue's own escape hatch, on the commit that added it.
+  - Note: What that surfaced: the skill had exactly one fallback sentence covering both "the environment cannot run an agent" and "the operator chose not to", which are different situations that a reader of the commit needs told apart. The change now distinguishes them and requires the report to say which applied. A policy that forbids subagents is a third case, distinct from both, and is not yet named anywhere.
+  - Note: The self-review did find two real defects (an unconditional description of the review step in the ARCHITECTURE pipeline summary, and an overloaded sentence), so the fallback path is not inert — but it was the author reading its own diff, which is the exact weakness step 8 exists to cover. Treat this iteration's review as weaker evidence than a cold one.
+  - Note: _Posted by microfactory implement-next._
 - [ ] run the implement-next review subagents in the foreground, not in the background
   - Note: The iteration must not commit or push before the review findings are in; a backgrounded reviewer lets step 9 run ahead of step 8. State explicitly in implement-next that the review agent is awaited, and that several reviewers (when used) are launched together but all awaited before any commit.
 - [ ] make the "plan first if no plan exists" step of implement-next optional, controlled by an `auto_plan` setting in .microfactory/config.yaml (default on)

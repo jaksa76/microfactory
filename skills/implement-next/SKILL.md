@@ -54,14 +54,18 @@ Anything wider stays out: improvements to screens this issue did not touch, or e
 
 The whole diff this iteration produced — the implementation and the fixes from step 7 together — gets reviewed before it is committed, so nothing reaches the commit unreviewed.
 
-**Hand the review to a fresh agent, not to yourself.** You know why every line is there, so you read the diff as you intended it rather than as it is written; an agent seeing it cold does not. Give it only what a reviewer would legitimately have:
+**Who reviews depends on configuration.** A *cold review* — handing the diff to a fresh agent — is the default; `deep_review: false` in config turns it off for the project. Labels override the config per issue: `needs-review` forces the cold review on, `skip-review` forces it off, and `skip-review` wins if an issue somehow carries both. A missing `deep_review` key means **true** — the cold review is what an unconfigured factory does.
+
+This setting chooses *who* reviews, never *whether*. When the cold review is off, review the diff yourself against the same list of concerns below, and say in your report that the cold review was skipped and which setting or label skipped it — so a later reader can tell a deliberate skip from a missed step.
+
+**When it is on, hand the review to a fresh agent, not to yourself.** You know why every line is there, so you read the diff as you intended it rather than as it is written; an agent seeing it cold does not. Give it only what a reviewer would legitimately have:
 
 - the issue text and the answers settled in its refinement thread,
 - `plans/<KEY>.md`,
 - the diff of this iteration,
 - the project's style guide, `CLAUDE.md`/`AGENTS.md`, or whatever conventions the repo documents.
 
-Do **not** give it your reasoning for the choices you made — that is the part being tested. Ask it for findings only: correctness, security problems in the code this iteration added, drift from the project's conventions, and simplicity, decoupling and clarity where the project states no rule. If the environment cannot run a separate agent, review the diff yourself against the same list.
+Do **not** give it your reasoning for the choices you made — that is the part being tested. Ask it for findings only: correctness, security problems in the code this iteration added, drift from the project's conventions, and simplicity, decoupling and clarity where the project states no rule. If the environment cannot run a separate agent, review the diff yourself against the same list and say so — that is a capability the environment lacks, not a configuration choice, and the two are worth telling apart in the report.
 
 Then decide what to act on. The reviewer is working without your context and will sometimes be wrong — a finding that misreads the code is not a defect, and neither is a suggestion that contradicts the plan or the refinement thread. Fix the real ones, and say in your report which findings you rejected and why. Update any documentation the change invalidates.
 

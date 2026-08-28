@@ -15,8 +15,9 @@ Ask (with AskUserQuestion where options fit, free text otherwise):
 2. **Project identifier**: Jira project key (e.g. `MYPROJ`), GitHub `owner/repo`, or the path to the TODO file.
 3. **Plan by default?** If yes, every issue needs an approved plan before implementation (issues labeled `skip-plan` are exempt). If no, only issues labeled `needs-plan` go through planning.
 4. **Feature branches?** If yes, implementation happens on `feature/<KEY>` branches with a pull request (issues labeled `skip-branch` are exempt). If no, work lands on the default branch (issues labeled `needs-branch` still get a branch).
-5. **Loop intervals**: how often to look for work. Defaults: implementation every 20 minutes, planning every 10 minutes.
-6. **This session's role**: planner or implementer (the other role runs in a second session).
+5. **Deep review?** If yes (the default), each implementation iteration hands its diff to a fresh agent for a cold review before committing — an author reads its own diff as intended rather than as written. If no, the implementer reviews its own diff instead; issues labeled `needs-review` still get the cold review, and `skip-review` exempts an issue either way.
+6. **Loop intervals**: how often to look for work. Defaults: implementation every 20 minutes, planning every 10 minutes.
+7. **This session's role**: planner or implementer (the other role runs in a second session).
 
 ## 2. Authenticate the backend
 
@@ -35,6 +36,7 @@ backend: jira              # jira | github | todo
 project: MYPROJ            # Jira key | owner/repo | path to TODO.md
 plan_by_default: false
 feature_branches: false
+deep_review: true
 implement_interval: 20m
 plan_interval: 10m
 # jira backend only:

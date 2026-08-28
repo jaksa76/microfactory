@@ -34,7 +34,7 @@ Open Claude Code in the project you want the factory to work on and run:
 /microfactory:init-factory
 ```
 
-It interviews you (backend, project, planning and branching policy, loop intervals), authenticates the backend CLI, writes `.microfactory/config.yaml` (no secrets — safe to commit), and starts the work loop in the current session.
+It interviews you (backend, project, planning, branching and review policy, loop intervals), authenticates the backend CLI, writes `.microfactory/config.yaml` (no secrets — safe to commit), and starts the work loop in the current session.
 
 ## Running
 
@@ -71,7 +71,9 @@ Issue state drives everything; the board is your monitor.
 3. A human reviews the plan and transitions the issue to **Plan Approved**.
 4. An implementer session claims it and implements it, following the approved plan — or writing its own plan first (and treating it as approved) when the issue never went through planning. It runs the tests, pushes, and transitions the issue to **Done** — or opens a PR and transitions to **In Review** when feature branches are enabled.
 
-Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches (`skip-*` wins).
+Every implemented diff is reviewed before it is committed. By default that review goes to a **fresh agent** that sees the issue, the plan and the diff but not the implementer's reasoning — an author reads its own diff as intended rather than as written. Set `deep_review: false` if you would rather not spend a second agent per iteration; the implementer then reviews its own diff against the same checklist.
+
+Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches, `needs-review` / `skip-review` for the cold review (`skip-*` wins).
 
 If a story is too vague to hand to the factory, `/microfactory:refine-story` sharpens it first. It works out whatever the codebase already answers, then **comments the few real product choices on the issue** and stops — a yes/no confirmation where one option obviously wins, a short menu where the choice is genuinely open, each with a default so ignoring it is safe. Answer in a reply whenever you get to it. It never edits your story — the answers stay in the thread, and `plan-next` and `implement-next` read the thread when they pick the issue up. Drop the `needs-refinement` tag yourself once the answers satisfy you. Nothing waits on you, so it runs as a loop of its own:
 
