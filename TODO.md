@@ -31,3 +31,6 @@
 - [ ] add a looping mechanism for when running in copilot
 - [ ] add a looping mechanism for when running in codex
 - [ ] generic fallback when subagents are unavailable
+- [ ] make planning loop work even with a dirty workspace
+- [ ] add option to create new feature branches from previous feature branch rather than main in order to have the latest changes even before a PR is merged.
+- [ ] add labels to override base branch behaviour
