@@ -28,3 +28,9 @@
   - Note: Reads the iteration notes, plans, diffs and refinement threads produced in the session and turns the recurring failures into concrete proposals for the skills themselves (what misled the planner, what the reviewer kept catching, where a story was the wrong size). Needs somewhere to send them — issues in the microfactory repo via a backend of its own, or a local report file — which is the main thing to settle before implementing.
 - [ ] run the microfactory feedback skill when an implementation iteration finds no work
   - Note: implement-next currently ends the iteration silently when nothing is claimable, so an idle factory does nothing at all. Instead spend the idle iteration on the feedback skill above. Depends on that skill existing, and needs a guard so a long idle stretch does not send the same feedback every interval.
+- [ ] add a looping mechanism for when running in copilot
+- [ ] add a looping mechanism for when running in codex
+- [ ] generic fallback when subagents are unavailable
+- [ ] make planning loop work even with a dirty workspace
+- [ ] add option to create new feature branches from previous feature branch rather than main in order to have the latest changes even before a PR is merged.
+- [ ] add labels to override base branch behaviour
