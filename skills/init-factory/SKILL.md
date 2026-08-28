@@ -14,10 +14,11 @@ Ask (with AskUserQuestion where options fit, free text otherwise):
 1. **Task backend**: `jira`, `github`, or `todo` (a local TODO.md file).
 2. **Project identifier**: Jira project key (e.g. `MYPROJ`), GitHub `owner/repo`, or the path to the TODO file.
 3. **Plan by default?** If yes, every issue needs an approved plan before implementation (issues labeled `skip-plan` are exempt). If no, only issues labeled `needs-plan` go through planning.
-4. **Feature branches?** If yes, implementation happens on `feature/<KEY>` branches with a pull request (issues labeled `skip-branch` are exempt). If no, work lands on the default branch (issues labeled `needs-branch` still get a branch).
-5. **Deep review?** If yes (the default), each implementation iteration hands its diff to a fresh agent for a cold review before committing — an author reads its own diff as intended rather than as written. If no, the implementer reviews its own diff instead; issues labeled `needs-review` still get the cold review, and `skip-review` exempts an issue either way.
-6. **Loop intervals**: how often to look for work. Defaults: implementation every 20 minutes, planning every 10 minutes.
-7. **This session's role**: planner or implementer (the other role runs in a second session).
+4. **Auto-plan?** When an implementation-eligible issue has no plan, should the implementer write one for itself and treat it as approved? Default no — planning then happens only in the planner loop, and the implementer works from the issue and its refinement thread. Independent of question 3: `needs-plan` issues still wait for an approved plan either way.
+5. **Feature branches?** If yes, implementation happens on `feature/<KEY>` branches with a pull request (issues labeled `skip-branch` are exempt). If no, work lands on the default branch (issues labeled `needs-branch` still get a branch).
+6. **Deep review?** If yes (the default), each implementation iteration hands its diff to a fresh agent for a cold review before committing — an author reads its own diff as intended rather than as written. If no, the implementer reviews its own diff instead; issues labeled `needs-review` still get the cold review, and `skip-review` exempts an issue either way.
+7. **Loop intervals**: how often to look for work. Defaults: implementation every 20 minutes, planning every 10 minutes.
+8. **This session's role**: planner or implementer (the other role runs in a second session).
 
 ## 2. Authenticate the backend
 
@@ -35,6 +36,7 @@ Create `.microfactory/config.yaml` in the project root (settings only, no secret
 backend: jira              # jira | github | todo
 project: MYPROJ            # Jira key | owner/repo | path to TODO.md
 plan_by_default: false
+auto_plan: false
 feature_branches: false
 deep_review: true
 implement_interval: 20m

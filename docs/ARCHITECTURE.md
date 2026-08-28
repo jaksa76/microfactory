@@ -50,6 +50,7 @@ legacy/hub/           original hub-based implementation (reference only)
 backend: jira              # jira | github | todo
 project: MYPROJ            # Jira key | owner/repo | path to TODO.md
 plan_by_default: false     # require an approved plan for all issues
+auto_plan: false           # implementer writes its own plan when none exists (absent = false)
 feature_branches: false    # implement on feature/<KEY> branches + PRs
 deep_review: true          # cold-review each diff with a fresh agent (absent = true)
 implement_interval: 20m    # /loop interval for implementer sessions
@@ -85,7 +86,7 @@ Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`,
 
 ## Workflow skills
 
-**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, writing it first (via `plan-next`'s analysis and plan format) and treating it as approved when it does not exist → implement and test → verify the behaviour (UI, e2e) → review the code (cold review by default; `deep_review` config or `needs-review` label, `skip-review` wins) → one commit → push → PR + In Review (branch mode) or Done (direct mode) → an iteration note if anything went sideways. Post-push issue updates are best effort.
+**implement-next** — one iteration: read config → claim an implementation-eligible issue → optional feature branch (`feature_branches` config or `needs-branch` label; `skip-branch` wins) → follow `plans/<KEY>.md`, or when none exists write one and treat it as approved (`auto_plan` on) or work from the issue and its thread (`auto_plan` off, the default) → implement and test → verify the behaviour (UI, e2e) → review the code (cold review by default; `deep_review` config or `needs-review` label, `skip-review` wins) → one commit → push → PR + In Review (branch mode) or Done (direct mode) → an iteration note if anything went sideways. Post-push issue updates are best effort.
 
 Both checks run **before** the commit, so an iteration produces a single commit containing the implementation and everything the checks changed. Verification comes first and review second, because verification fixes code — running the review last means nothing reaches the commit unreviewed, and there is no point reviewing an implementation that a failing e2e test is about to rewrite. Each check is bounded to what this iteration touched: the UI pass covers the functionality it built and is skipped when the change has no UI surface, security covers the code it added, and anything wider — unrelated screens, pre-existing e2e failures — is filed as a task rather than fixed, the same line the finder skills draw.
 
@@ -93,7 +94,7 @@ The review is **delegated to a fresh agent** that gets the issue, the thread's a
 
 That cold review is the default, not a fixture: `deep_review: false` turns it off for a project, and the `needs-review` / `skip-review` labels override the config per issue (`skip-review` wins, the same precedence `skip-branch` and `skip-plan` already use). An absent key means **true**, so config files written before the setting existed keep reviewing. What the setting chooses is *who* reviews, never *whether*: with the cold review off, the implementer reads its own diff against the same list and records that it did. The cost being traded away is one extra agent per iteration — real on a one-line change, pointless where no second agent can run. Shipping an unreviewed diff is not the saving on offer.
 
-Every implemented issue therefore ends up with a plan file. The difference between the two paths is who approves it: a human for plans written by `plan-next`, nobody for plans the implementer writes for itself.
+Whether every implemented issue ends up with a plan file is `auto_plan`'s to decide. With it on, one always does, and the two paths differ only in who approves it: a human for plans written by `plan-next`, nobody for plans the implementer writes for itself. With it off — the default — the implementer works from the issue and its resolved refinement thread, does the analysis without writing it up, and `plans/` holds only human-approved plans. Note the asymmetry with `deep_review`: an absent `deep_review` key means true and preserves old behaviour, while an absent `auto_plan` key means false and changes it, so upgrading a config file written before this setting existed stops the self-approved plans it used to produce. That is the intended default — a plan written and blessed by the same agent in the same breath is ceremony — but it is a behaviour change, not a no-op.
 
 **plan-next** — one iteration: read config → claim a planning-eligible issue → explore → write `plans/<KEY>.md` (Summary / Files to Change / Implementation Steps / Testing / Risks) → commit and push only the plan → comment the plan URL → transition to Awaiting Plan Review. A human approves the plan; implementer sessions pick the issue up from there.
 

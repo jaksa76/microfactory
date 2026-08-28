@@ -1,11 +1,11 @@
 ---
 name: implement-next
-description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or write one first and treat it as approved), implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
+description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or, with auto_plan on, write one first and treat it as approved), implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
 ---
 
 # Implement the next issue
 
-One implementation iteration: claim → plan (if there is no plan yet) → implement → test → verify → review → push → update the issue → note what surprised you.
+One implementation iteration: claim → settle the plan → implement → test → verify → review → push → update the issue → note what surprised you.
 
 ## 1. Read configuration
 
@@ -28,14 +28,21 @@ Pull the latest default branch.
 
 Use a feature branch when `feature_branches: true` in config **or** the issue has a `needs-branch` label; a `skip-branch` label overrides both and forces direct-to-default. When branching, create `feature/<KEY>` from the latest default branch (reset it to the default branch if it already exists).
 
-## 5. Make sure there is a plan
+## 5. Settle the plan
 
-- If `plans/<KEY>.md` exists, it is the **approved plan** — use it as written.
-- Otherwise write one now: load the `plan-next` skill and follow its analysis and plan-writing steps (its steps 4 and 5) to produce `plans/<KEY>.md`. Treat that plan as **approved** and carry straight on to the implementation — do not stop for review and do not transition the issue to `Awaiting Plan Review`.
+Three cases, in this order:
+
+1. **`plans/<KEY>.md` exists** — it is the **approved plan**, use it as written. An existing plan is followed whatever the setting below says.
+2. **No plan and `auto_plan: true`** — write one now: load the `plan-next` skill and follow its analysis and plan-writing steps (its steps 4 and 5) to produce `plans/<KEY>.md`. Treat that plan as **approved** and carry straight on to the implementation — do not stop for review and do not transition the issue to `Awaiting Plan Review`.
+3. **No plan and `auto_plan` off** — implement without a plan file. The issue text and its resolved refinement thread are the specification. Still do `plan-next`'s **analysis** (its step 4) and carry the conclusions into the implementation: what is dropped here is the document and its self-approval, never the thinking.
+
+A missing `auto_plan` key means **false** — planning happens in the planner loop unless a project asks for it here. Note that this is the opposite of `deep_review`, where an absent key means true; the two booleans sit next to each other in config and do not default the same way.
+
+This setting never lets an issue skip planning that was meant to have one: a `needs-plan` issue is not implementation-eligible until its plan is approved, whatever `auto_plan` says. Eligibility is the backend skill's rule and this does not touch it.
 
 ## 6. Implement
 
-- Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built.
+- Follow the plan. If implementing reveals the plan is wrong, correct the plan file too so it matches what was built. Where step 5 settled on no plan file, the issue and its thread play that role and there is nothing to correct — the divergence goes in the iteration note instead.
 - Implement the change following existing style and conventions, and add or update tests.
 - Run the project's tests; the work is not done until they pass.
 
