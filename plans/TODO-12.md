@@ -75,5 +75,5 @@ No automated suite for the skills (CLAUDE.md). Verification:
   and the self-review path is spelled out rather than left as an omission.
 - **Precedence disagreeing with its siblings.** Mitigated by copying the `skip-*` beats `needs-*`
   rule verbatim in shape.
-- **Scope creep into TODO-14** (foreground vs. background review agents). Different issue; this one
+- **Scope creep into TODO-19** (foreground vs. background review agents). Different issue; this one
   only decides *whether* the agent runs, not how it is awaited.

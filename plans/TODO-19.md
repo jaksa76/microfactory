@@ -22,7 +22,7 @@ Two details are worth stating beyond the bare rule:
 - **Where the boundary actually is.** It is the commit, not step 8's end — step 9.1 re-runs the tests
   when the review changed anything, so a late finding invalidates the test run too, not just the diff.
 
-This is the concern one level down from TODO-29, which has the dispatcher await its iteration agent.
+This is the concern one level down from TODO-24, which has the dispatcher await its iteration agent.
 Same rule, different altitude; that plan references this one rather than restating it, and this change
 should keep the wording close enough that the two read as one policy.
 
@@ -70,8 +70,8 @@ No automated suite for the skills (CLAUDE.md). Verification:
   requirement instead.
 - **Forbidding parallel reviewers by accident.** Mitigated by step 2; the rule is "await before
   commit", not "one at a time".
-- **Overlap with TODO-29.** That plan makes the dispatcher await its iteration agent. Keep this change
-  to the reviewer-inside-an-iteration level and let TODO-29 own the level above, or the two will
+- **Overlap with TODO-24.** That plan makes the dispatcher await its iteration agent. Keep this change
+  to the reviewer-inside-an-iteration level and let TODO-24 own the level above, or the two will
   contradict each other on which layer enforces the wait.
 - **This iteration cannot demonstrate the fix.** The session implementing it does not spawn review
   agents at all (see TODO-12's iteration note), so the change ships reviewed by its own author against

@@ -1,4 +1,4 @@
-# TODO-7: create a skill that installs the agentize plugin (github.com/jaksa76/agentize)
+# TODO-30: create a skill that installs the agentize plugin (github.com/jaksa76/agentize)
 
 ## Summary
 

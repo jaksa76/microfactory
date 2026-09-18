@@ -85,6 +85,6 @@ No automated suite for the skills (CLAUDE.md). Verification:
 - **`plans/` stops being a complete record.** Under the new default, the directory holds only
   human-approved plans. Arguably an improvement in signal, but anything that assumed one file per
   implemented issue is now wrong; the ARCHITECTURE rewrite is where that gets said.
-- **Interaction with TODO-28** (capture lessons in `CLAUDE.md`). With no plan file, the iteration note
+- **Interaction with TODO-31** (capture lessons in `CLAUDE.md`). With no plan file, the iteration note
   and any captured lesson become the only written trace of an iteration's reasoning. Worth a sentence
-  when TODO-28 is planned, not a change here.
+  when TODO-31 is planned, not a change here.
