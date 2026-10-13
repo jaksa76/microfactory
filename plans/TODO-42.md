@@ -92,6 +92,16 @@ never before, so racing workers cannot clobber each other's tags.
 **HTML**: the skill says to strip tags and decode entities before looking for the
 `**Refinement questions**` marker, and to treat the marker line, not the markup, as the contract.
 
+**Installing prerequisites needs the user's approval, and happens only in `init-factory`.** That is
+the one interactive skill; the backend skill runs unattended and so only *checks* and stops. In
+`init-factory`, for each missing piece, show the exact command and ask (AskUserQuestion: install /
+I'll do it myself) before running it; a "no" means stop with instructions, never a silent install.
+`az` itself is installed with the platform's package manager, adapted to the user's OS as elsewhere
+in the skills (Windows: `winget install --exact --id Microsoft.AzureCLI`; macOS: `brew install
+azure-cli`; Linux: Microsoft's package repo / install script — name the documented method and let
+the agent adapt). The extension is `az extension add --name azure-devops`. Do not set `extension.use_dynamic_install`: it would make `az` install extensions silently later, which is the opposite of asking. A fresh `az` install may need a new shell to be on `PATH`; say so
+rather than retrying blindly.
+
 ## Files to Change
 
 | File | Change |
@@ -100,7 +110,7 @@ never before, so racing workers cannot clobber each other's tags.
 | `skills/plan-next/SKILL.md` | Line 14: add `azure-devops-tasks` to the list of backend skills. |
 | `skills/implement-next/SKILL.md` | Line 14: same. |
 | `skills/find-improvements/SKILL.md` | Line 16: same. |
-| `skills/init-factory/SKILL.md` | Frontmatter description and interview Q1/Q2 gain `azure-devops` (project = ADO project name, plus org URL); step 2 gets an `azure-devops` auth bullet (`az extension add --name azure-devops` if missing, `az account show` / suggest `! az login`, user identity from `az ad signed-in-user show --query userPrincipalName` or ask); config example gains `azure_devops_org` / `azure_devops_user` under an "azure-devops backend only" comment. |
+| `skills/init-factory/SKILL.md` | Frontmatter description and interview Q1/Q2 gain `azure-devops` (project = ADO project name, plus org URL); step 2 gets an `azure-devops` bullet that **installs missing prerequisites only after the user approves each one** (`az` itself when `az --version` fails; `az extension add --name azure-devops` when `az extension show --name azure-devops` fails), then checks `az account show` / suggests `! az login` (the user identity from `az ad signed-in-user show --query userPrincipalName` or ask); config example gains `azure_devops_org` / `azure_devops_user` under an "azure-devops backend only" comment. |
 | `docs/ARCHITECTURE.md` | Diagram label `[Task backend: jira \| github \| todo \| azure-devops]`; layout list entry; config block (`backend` comment + two keys); claim-wait note (~5s for ADO); status-mapping paragraph (ADO = tags + a real Done state). |
 | `README.md` | Backend prerequisites line (`az` + `azure-devops` extension); the one sentence on status mapping (line ~92) mentions Azure DevOps tags. |
 | `CLAUDE.md` | Repository layout block: add `azure-devops-tasks/`; conventions text mentions backends generically so needs no change. |
@@ -117,9 +127,10 @@ template examples need no ADO entry).
 2. Write `skills/azure-devops-tasks/SKILL.md` containing:
    - **Preamble**: config keys; every command takes `--org <azure_devops_org> --project <project>`
      (`--project` is not accepted by `update`/`show`, which take the id only — check
-     `az boards work-item update --help` and omit where unsupported); auth check `az account show`
-     and `az extension show --name azure-devops`, on failure stop and tell the user to run
-     `! az login` / `az extension add --name azure-devops`; key = `ADO-<id>`.
+     `az boards work-item update --help` and omit where unsupported); check `az --version`,
+     `az extension show --name azure-devops` and `az account show`; on any failure **stop** and tell the
+     user to run `/microfactory:init-factory` (or `! az login`) — never install anything here, because
+     this skill runs unattended in a `/loop` and cannot ask; key = `ADO-<id>`.
    - **Finding eligible issues**: `az boards query --wiql "<WIQL>" --org ... --project ... -o json`
      with the preamble and table above. Note the result lists ids; fetch fields with
      `az boards work-item show --id N` for the ones needed. Include a worked example and the same
@@ -158,6 +169,7 @@ No automated suite exists for skills (see CLAUDE.md). Verification:
 - **Static**: grep that `azure-devops` / `azure-devops-tasks` spellings are identical everywhere;
   that every config key named in `init-factory` appears in `ARCHITECTURE.md`; that the new skill
   has the same top-level sections as `github-tasks`.
+- **Prerequisite install**: with `az` or the extension absent (e.g. `az extension remove --name azure-devops` on a scratch machine) run `init-factory` and confirm it asks before each install and stops cleanly on "no".
 - **CLI dry-checks** (read-only, no org needed): `az boards query -h`, `az boards work-item
   update -h`, `az devops invoke -h` — confirm each flag the skill names exists in the installed
   extension (1.0.8) and that `--project` is accepted exactly where the skill uses it.
