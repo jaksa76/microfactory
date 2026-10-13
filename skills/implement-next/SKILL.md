@@ -11,7 +11,7 @@ One implementation iteration: claim → settle the plan → implement → test �
 
 Read `.microfactory/config.yaml` in the project root. If it does not exist, tell the user to run `/microfactory:init-factory` and stop.
 
-Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `todo-tasks`) for all task operations below.
+Load the `tasks` skill for all task operations below; each is one of its subcommands.
 
 ## 2. Prepare the working tree
 
@@ -19,10 +19,10 @@ Pull the latest default branch.
 
 ## 3. Claim an issue
 
-- **No argument**: claim the next implementation-eligible issue using the backend skill's claim protocol (implementation mode). If there is no eligible issue, say "No implementation work available." and end the iteration — the loop cadence handles waiting.
-- **With an issue key argument**: view that issue, assign it to yourself, and transition it to `In Progress` (best effort) instead of searching.
+- **No argument**: claim the next implementation-eligible issue with the `tasks` skill's `claim implementation`. If there is no eligible issue, say "No implementation work available." and end the iteration — the loop cadence handles waiting.
+- **With an issue key argument**: `claim implementation <key>` — view that issue, assign it to yourself, and transition it to `In Progress` (best effort) instead of searching.
 
-**Then read the issue's comments** through the backend skill's list-comments operation. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. Load `plan-next` and follow its *Reading a refinement thread* section to resolve it. Do this even when a plan already exists: the plan may predate the answers, and where the two disagree the thread is newer — follow it and correct the plan file.
+**Then read the issue's comments** with the `tasks` skill's `comments`. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. Load `plan-next` and follow its *Reading a refinement thread* section to resolve it. Do this even when a plan already exists: the plan may predate the answers, and where the two disagree the thread is newer — follow it and correct the plan file.
 
 ## 4. Decide on a feature branch
 
@@ -38,7 +38,7 @@ Three cases, in this order:
 
 A missing `auto_plan` key means **false** — planning happens in the planner loop unless a project asks for it here. Note that this is the opposite of `deep_review`, where an absent key means true; the two booleans sit next to each other in config and do not default the same way.
 
-This setting never lets an issue skip planning that was meant to have one: a `needs-plan` issue is not implementation-eligible until its plan is approved, whatever `auto_plan` says. Eligibility is the backend skill's rule and this does not touch it.
+This setting never lets an issue skip planning that was meant to have one: a `needs-plan` issue is not implementation-eligible until its plan is approved, whatever `auto_plan` says. Eligibility is the `tasks` skill's rule and this does not touch it.
 
 ## 6. Implement
 
@@ -55,7 +55,7 @@ Confirm what you built actually works, beyond the unit tests.
 - **UI** — skip when the change has no UI surface. Otherwise run the affected part of the application, take screenshots of the functionality this issue implemented, and fix defects in **that** functionality: missing empty, loading or error states, broken layout, obvious accessibility problems.
 - **E2E** — if the project has an e2e suite that can run in this environment, run the tests covering the affected area. Failures block the iteration exactly like unit-test failures.
 
-Anything wider stays out: improvements to screens this issue did not touch, or e2e failures that predate it, get filed as a task through the backend skill's create operation rather than fixed here.
+Anything wider stays out: improvements to screens this issue did not touch, or e2e failures that predate it, get filed as a task with the `tasks` skill's `create` rather than fixed here.
 
 ## 8. Review the code
 
@@ -80,7 +80,7 @@ The requirement outlives this step: what has to be true before the commit is tha
 
 Then decide what to act on. The reviewer is working without your context and will sometimes be wrong — a finding that misreads the code is not a defect, and neither is a suggestion that contradicts the plan or the refinement thread. Fix the real ones, and say in your report which findings you rejected and why. Update any documentation the change invalidates.
 
-Pre-existing problems elsewhere are out of scope: file them as a task through the backend, not fixed here.
+Pre-existing problems elsewhere are out of scope: file them as a task with `tasks create`, not fixed here.
 
 ## 9. Commit, push, and update the issue
 

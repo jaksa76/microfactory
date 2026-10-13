@@ -24,7 +24,7 @@ Install the plugin in Claude Code:
 /plugin install microfactory
 ```
 
-Backend prerequisites: `acli` for Jira, `gh` for GitHub Issues, nothing for the TODO.md backend.
+Backend prerequisites: `acli` for Jira, `gh` for GitHub Issues, `az` with its `azure-devops` extension for Azure DevOps Boards, nothing for the TODO.md backend. `/microfactory:init-factory` checks for them and offers to install any that are missing — each install only after you approve it.
 
 ## Setup
 
@@ -34,7 +34,7 @@ Open Claude Code in the project you want the factory to work on and run:
 /microfactory:init-factory
 ```
 
-It interviews you (backend, project, planning, branching and review policy, loop intervals), authenticates the backend CLI, writes `.microfactory/config.yaml` (no secrets — safe to commit), and starts the work loop in the current session.
+It interviews you (backend, project, planning, branching and review policy, loop intervals), sets up the backend CLI (offering to install it if missing, with your approval), writes `.microfactory/config.yaml` (no secrets — safe to commit), and starts the work loop in the current session.
 
 ## Running
 
@@ -89,7 +89,7 @@ And if you are starting from a spec rather than a backlog, `/microfactory:breakd
 spec ──breakdown-feature──> stories ──refine-story──> specified stories ──plan-next──> plans ──implement-next──> code
 ```
 
-On GitHub, statuses map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
+On GitHub and Azure DevOps, statuses map to labels / tags (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
 ## Legacy
 

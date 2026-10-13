@@ -11,7 +11,7 @@ One planning iteration: claim → explore → write plan → push → request re
 
 Read `.microfactory/config.yaml` in the project root. If it does not exist, tell the user to run `/microfactory:init-factory` and stop.
 
-Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `todo-tasks`) for all task operations below.
+Load the `tasks` skill for all task operations below; each is one of its subcommands.
 
 ## 2. Prepare the working tree
 
@@ -20,10 +20,10 @@ Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `tod
 
 ## 3. Claim an issue
 
-- **No argument**: claim the next planning-eligible issue using the backend skill's claim protocol (planning mode). If there is no eligible issue, say "No planning work available." and end the iteration — the loop cadence handles waiting.
-- **With an issue key argument**: view that issue, assign it to yourself, and transition it to `Planning` (best effort) instead of searching.
+- **No argument**: claim the next planning-eligible issue with the `tasks` skill's `claim planning`. If there is no eligible issue, say "No planning work available." and end the iteration — the loop cadence handles waiting.
+- **With an issue key argument**: `claim planning <key>` — view that issue, assign it to yourself, and transition it to `Planning` (best effort) instead of searching.
 
-**Then read the issue's comments** through the backend skill's list-comments operation. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. See *Reading a refinement thread* at the end of this skill.
+**Then read the issue's comments** with the `tasks` skill's `comments`. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. See *Reading a refinement thread* at the end of this skill.
 
 ## 4. Analyze the change
 

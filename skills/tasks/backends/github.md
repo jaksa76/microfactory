@@ -1,13 +1,15 @@
----
-name: github-tasks
-description: GitHub Issues backend operations for the microfactory — find eligible issues, claim one with race verification, create, update, view, comment, and transition (statuses are mapped to labels), all via the gh CLI. Used by plan-next and implement-next when the configured backend is github. Not for general GitHub questions.
----
-
-# GitHub Issues task operations (via gh)
+# GitHub Issues backend (via gh)
 
 All operations use the `gh` CLI against the repo from `.microfactory/config.yaml` (`project` = `owner/repo`, `github_username` = your assignee login). Issue numbers are the issue keys.
 
-Before the first operation, verify authentication with `gh auth status`; if unauthorized, stop and tell the user to run `! gh auth login`.
+## Setup
+
+Prerequisites: the `gh` CLI installed and logged in.
+
+- **Detect** (also the check run before every other subcommand): `gh --version`, then `gh auth status`.
+- **Install `gh`** if missing, after the user approves: `winget install --exact --id GitHub.cli` on Windows, `brew install gh` on macOS, the distribution package or GitHub's apt/dnf repository on Linux (https://github.com/cli/cli#installation). Open a new shell if the binary is not on `PATH` afterwards.
+- **Log in** if `auth status` fails: suggest `! gh auth login`.
+- **Config values**: `gh api user --jq .login` → `github_username`.
 
 ## Finding eligible issues
 
@@ -61,6 +63,7 @@ Pass only the parts you are changing. Updating an issue's content never changes 
 
 ## Other operations
 
+- **List**: `gh issue list --repo owner/repo --state open --json number,title,labels,assignees --limit 100` (`--state all` for closed ones too); newest first by default.
 - **View**: `gh issue view <N> --repo owner/repo --json number,title,body,labels,assignees`
 - **Comment**: `gh issue comment <N> --repo owner/repo --body "<text>"`
 - **List comments**: `gh issue view <N> --repo owner/repo --json comments` — oldest first, each with `author.login`, `body`, `createdAt`, `url`, and `viewerDidAuthor` (true for comments this account wrote). `comments` is also a valid `gh issue list --json` field, so a scan that needs comments for several issues can fetch them in the same call as eligibility.

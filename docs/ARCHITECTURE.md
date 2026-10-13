@@ -7,7 +7,7 @@ The factory is a Claude Code **skills plugin**: pure markdown instructions, no b
 Worker-based pull model: sessions poll a task-manager backend for eligible work, claim an issue, do the work in the current checkout, push, and update the issue. The task backend (Jira by default) is the single source of truth — there is no local task store and no coordinator process.
 
 ```
-[Task backend: jira | github | todo]
+[Task backend: jira | github | azure-devops | todo]
    <- single source of truth for issue state
    ^v sessions claim, comment, transition
 [Claude Code sessions running /loop plan-next | implement-next]
@@ -20,7 +20,7 @@ Worker-based pull model: sessions poll a task-manager backend for eligible work,
 ```
 .claude-plugin/plugin.json   plugin manifest
 skills/
-  init-factory/    interview -> .microfactory/config.yaml, backend auth, start /loop
+  init-factory/    interview -> .microfactory/config.yaml, backend setup (with approved installs), start /loop
   start/           start the implementation /loop at the configured interval
   start-planning/  start the planning /loop at the configured interval
   install-agentize/ install the agentize plugin (agent-readiness skills)
@@ -31,9 +31,8 @@ skills/
   find-improvements/         run the finders, merge findings, create approved ones as tasks
   refine-story/    one refinement iteration: ask the open product questions via issue comments
   breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
-  jira-tasks/      Jira backend operations (via acli; bundles acli-reference.md)
-  github-tasks/    GitHub Issues backend operations (via gh; statuses mapped to labels)
-  todo-tasks/      local TODO.md backend operations (checkbox states)
+  tasks/           task-backend subcommands (setup, find, list, claim, view, create, update, comment, comments, transition)
+    backends/      jira.md (acli), github.md (gh), azure-devops.md (az), todo.md — loaded one at a time
   plan-next/       one planning iteration (a /loop target)
   implement-next/  one implementation iteration (a /loop target)
 
@@ -44,11 +43,11 @@ legacy/hub/           original hub-based implementation (reference only)
 
 ## Configuration
 
-`.microfactory/config.yaml` in the target project, written by `init-factory`. Settings only — **no secrets**; credentials live in the backend CLIs' own auth stores (`acli jira auth login`, `gh auth login`) and the user's git credentials.
+`.microfactory/config.yaml` in the target project, written by `init-factory`. Settings only — **no secrets**; credentials live in the backend CLIs' own auth stores (`acli jira auth login`, `gh auth login`, `az login`) and the user's git credentials.
 
 ```yaml
-backend: jira              # jira | github | todo
-project: MYPROJ            # Jira key | owner/repo | path to TODO.md
+backend: jira              # jira | github | azure-devops | todo
+project: MYPROJ            # Jira key | owner/repo | Azure DevOps project | path to TODO.md
 plan_by_default: false     # require an approved plan for all issues
 auto_plan: false           # implementer writes its own plan when none exists (absent = false)
 feature_branches: false    # implement on feature/<KEY> branches + PRs
@@ -58,11 +57,19 @@ plan_interval: 10m         # /loop interval for planner sessions
 jira_site: ...             # jira only
 jira_account_id: ...       # jira only
 github_username: ...       # github only
+azure_devops_org: ...      # azure-devops only (organization URL)
+azure_devops_user: ...     # azure-devops only (sign-in email / UPN)
 ```
 
-## Backend skills
+## The `tasks` skill and its backends
 
-Each backend skill documents the same operations for the workflow skills: find eligible issues, claim, view, comment, list comments, transition, create, and update. Creation is deliberately outside the claim protocol — a new task is left unassigned and in its initial status, because an assigned task is not claimable.
+One skill, `tasks`, exposes the operations the workflow skills need as explicit **subcommands**: `setup`, `find`, `list`, `claim`, `view`, `create`, `update`, `comment`, `comments`, `transition`. Its `SKILL.md` holds what is true of every backend — the subcommand contract, the eligibility rules, the canonical statuses, and the invariants (claim protocol, creation never claims, updating never claims or transitions). `backends/<backend>.md` holds only the translation into one tool's commands, and only the doc for the configured backend is loaded. Adding a backend is one new file plus its name in the dispatcher's table; the workflow skills never enumerate backends.
+
+Creation is deliberately outside the claim protocol — a new task is left unassigned and in its initial status, because an assigned task is not claimable.
+
+### Setup and check
+
+Every backend doc has a **Setup** section: its prerequisites (CLI, extension, login), how to detect each, how to install each per OS, and where its config values come from. The knowledge lives with the backend, but it is used in two modes. `setup` is interactive and is triggered only by `init-factory`: it offers each missing install and waits for the user's approval. The **check** — the detect commands alone — is the first step of every other subcommand; it never installs and never prompts, because those subcommands run unattended in a `/loop`, and on failure it tells the user to run `init-factory`.
 
 ### Claim semantics
 
@@ -70,7 +77,7 @@ Claiming uses optimistic locking so any number of concurrent sessions is safe:
 
 1. Search for eligible unassigned work (oldest/highest-rank first)
 2. Assign the first issue to self
-3. Wait (~10s Jira, ~5s GitHub) and re-read the assignee
+3. Wait (~10s Jira, ~5s GitHub and Azure DevOps) and re-read the assignee
 4. If someone else won the race, retry from step 1
 5. Transition status (Planning or In Progress)
 
@@ -82,7 +89,7 @@ Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip
 
 ### Status mapping
 
-Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
+Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). Azure DevOps maps them to the same tags — its states differ by process template and cannot be extended from the CLI — and only Done changes the real state. The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
 
 ## Workflow skills
 
@@ -108,9 +115,9 @@ Whether every implemented issue ends up with a plan file is `auto_plan`'s to dec
 
 Each finder stays in its own lane and hands neighbouring concerns to its sibling — a testing gap that needs a design seam changed goes to the design finder, not into the testing report. `find-ui-improvements` differs from the other three in method: it runs the application and screenshots it, because UI findings that cannot be seen are usually not findings. Screenshots stay in a temp directory and are never committed.
 
-Finders never edit code and never write to the task backend. `find-improvements` is the skill that turns findings into work: it loads the finders in its own session, merges duplicates across areas, re-ranks globally (each finder only ranks within its own area), drops anything already in the backlog, **asks the user which findings to create**, and only then writes tasks through the backend skill's create operation — unassigned, labelled by area, with `L`-effort or risky findings tagged `needs-plan` so they go through planning first.
+Finders never edit code and never write to the task backend. `find-improvements` is the skill that turns findings into work: it loads the finders in its own session, merges duplicates across areas, re-ranks globally (each finder only ranks within its own area), drops anything already in the backlog, **asks the user which findings to create**, and only then writes tasks through the `tasks` skill's `create` — unassigned, labelled by area, with `L`-effort or risky findings tagged `needs-plan` so they go through planning first.
 
-Findings never touch disk: they live in the aggregator's session context, so the backend remains the single source of truth. Approval before creation is deliberate — an unattended sweep opening thirty issues would poison a real backlog, and on Jira or GitHub those writes are visible to the user's whole team.
+Findings never touch disk: they live in the aggregator's session context, so the backend remains the single source of truth. Approval before creation is deliberate — an unattended sweep opening thirty issues would poison a real backlog, and on Jira, GitHub or Azure DevOps those writes are visible to the user's whole team.
 
 ## Getting work into the backlog
 

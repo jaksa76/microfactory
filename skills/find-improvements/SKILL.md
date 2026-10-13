@@ -13,7 +13,7 @@ This is the only skill that creates tasks. The finders themselves never write to
 
 Read `.microfactory/config.yaml` in the project root. If it does not exist, tell the user to run `/microfactory:init-factory` and stop.
 
-Load the backend skill matching `backend` (`jira-tasks`, `github-tasks`, or `todo-tasks`) — you will need its **create** operation and its eligibility rules.
+Load the `tasks` skill — you will need its `list` and `create` subcommands and its eligibility rules.
 
 ## 2. Choose the areas to sweep
 
@@ -39,17 +39,17 @@ Each finder ranked only within its own area, so the combined list needs work:
 - **Drop duplicates** — the same file or the same underlying problem surfacing in two areas is one task. Keep the framing that makes the work clearest.
 - **Collapse** findings that would land as a single commit.
 - **Re-rank globally** by payoff relative to effort, across all areas.
-- **Check the backlog first**: read the existing open items from the backend and drop anything already there. Re-proposing work that is already queued is the fastest way to make this skill useless.
+- **Check the backlog first**: read the existing open items with `tasks list open` and drop anything already there. Re-proposing work that is already queued is the fastest way to make this skill useless.
 
 ## 5. Get approval before creating anything
 
-Present the merged list — title, area, effort, payoff, one line of problem — and let the user choose which become tasks. **Create nothing until they have chosen.** An automated sweep that opens thirty issues by itself ruins a real backlog, and on Jira or GitHub those writes are visible to the user's whole team.
+Present the merged list — title, area, effort, payoff, one line of problem — and let the user choose which become tasks. **Create nothing until they have chosen.** An automated sweep that opens thirty issues by itself ruins a real backlog, and on Jira, GitHub or Azure DevOps those writes are visible to the user's whole team.
 
 If the user wants everything, that is their call to make explicitly.
 
 ## 6. Create the approved tasks
 
-Through the backend skill's create operation, one task per finding:
+With the `tasks` skill's `create`, one task per finding:
 
 - **Title** — the finding's title, self-contained (the todo backend has nowhere else to put context).
 - **Body** — the finding's Problem, Proposed change, Payoff, and Risk.

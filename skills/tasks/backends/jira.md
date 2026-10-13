@@ -1,13 +1,15 @@
----
-name: jira-tasks
-description: Jira backend operations for the microfactory — find eligible issues, claim one with race verification, create, update, view, comment, and transition, all via the acli CLI. Used by plan-next and implement-next when the configured backend is jira. Not for general Jira questions.
----
+# Jira backend (via acli)
 
-# Jira task operations (via acli)
+All operations use the `acli` CLI. Read `jira-acli-reference.md` in this directory for command details, and use `acli <command> --help` when unsure of exact flags. Configuration comes from `.microfactory/config.yaml` (`project` = Jira project key, `jira_account_id` = your assignee id).
 
-All operations use the `acli` CLI. Read `acli-reference.md` in this skill's directory for command details, and use `acli <command> --help` when unsure of exact flags. Configuration comes from `.microfactory/config.yaml` (`project` = Jira project key, `jira_account_id` = your assignee id).
+## Setup
 
-Before the first operation, verify authentication with `acli jira auth status`; if unauthorized, stop and tell the user to run `! acli jira auth login`.
+Prerequisites: `acli` installed and logged in to the Jira site.
+
+- **Detect** (also the check run before every other subcommand): `acli --version`, then `acli jira auth status`.
+- **Install `acli`** if missing, after the user approves: follow Atlassian's instructions at https://developer.atlassian.com/cloud/acli/guides/install-acli/ for the user's OS (Homebrew on macOS: `brew tap atlassian/homebrew-acli && brew install acli`; a downloaded binary on Windows and Linux). Open a new shell if the binary is not on `PATH` afterwards.
+- **Log in** if `auth status` fails: the user must do it interactively — suggest `! acli jira auth login` (they need the site, their email, and an API token).
+- **Config values**: ask for the Jira site host (e.g. `mycompany.atlassian.net`) → `jira_site`; take the account id from `acli jira auth status` output, or ask → `jira_account_id` (needed for self-assignment).
 
 ## Finding eligible issues
 
@@ -60,6 +62,7 @@ Updating an item's content never changes its assignee or status — editing is n
 
 ## Other operations
 
+- **List**: `acli jira workitem search --jql "project = \"MYPROJ\" ORDER BY created DESC" --json --paginate`, adding `AND statusCategory != Done` for open items only.
 - **View**: `acli jira workitem view <KEY> --json` (summary, description, labels, assignee).
 - **Comment**: `acli jira workitem comment create --key <KEY> --body "<text>"`
 - **List comments**: `acli jira workitem comment list --key <KEY> --json --paginate` (oldest first by default; `--order` takes `created`/`updated` with a `+`/`-` prefix).

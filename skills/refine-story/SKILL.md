@@ -15,7 +15,7 @@ Act on **at most one item per iteration**.
 
 ## 1. Read configuration and pick an item
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the backend skill matching `backend` — you need its **view**, **list comments**, and **comment** operations, and nothing else.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `view`, `comments`, and `comment` subcommands, and nothing else.
 
 **With an issue key argument**: work that item.
 
@@ -32,7 +32,7 @@ Fetch the item and **its comments**. A questions comment posted by this skill al
 
 **If that marker is there, skip the item** — asked is asked, whether or not anybody has replied yet. (Given an explicit issue key, say the item has already been asked, point at the existing comment, and stop; do not post a second round.) Re-asking a question a human already answered wastes their attention, and asking a second round on top of an unanswered first one buries the questions that mattered. One round per item is the whole of this skill's budget; anything the round did not settle is the product owner's to pursue.
 
-Rely on the marker, not on comment authorship — the todo backend records no authors, and on a shared Jira or GitHub project a teammate's reply may come from any account. Ignore comments other factory skills left (plan links, implementation notes).
+Rely on the marker, not on comment authorship — the todo backend records no authors, and on a shared Jira, GitHub or Azure DevOps project a teammate's reply may come from any account. Ignore comments other factory skills left (plan links, implementation notes).
 
 If every eligible item already carries the marker, say "No refinement work available." and end the iteration — the humans have the ball, and the loop cadence handles waiting.
 
@@ -86,7 +86,7 @@ Every question states its **default** — what gets built if nobody answers. Tha
 
 ## 7. Post the questions and stop
 
-Post one comment through the backend's comment operation:
+Post one comment with the `tasks` skill's `comment`:
 
 ```markdown
 **Refinement questions**

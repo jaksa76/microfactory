@@ -15,7 +15,7 @@ See `docs/ARCHITECTURE.md` for the full design.
 ```
 .claude-plugin/plugin.json   plugin manifest
 skills/
-  init-factory/    interview → .microfactory/config.yaml, backend auth, start /loop
+  init-factory/    interview → .microfactory/config.yaml, backend setup (approved installs), start /loop
   start/           start the implementation /loop at the configured interval
   start-planning/  start the planning /loop at the configured interval
   install-agentize/ install the agentize plugin (agent-readiness skills)
@@ -26,9 +26,7 @@ skills/
   find-improvements/         run the finders, merge findings, create approved ones as tasks
   refine-story/    one refinement iteration: ask the open product questions via issue comments (/loop target)
   breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
-  jira-tasks/      Jira backend operations (acli; bundles acli-reference.md)
-  github-tasks/    GitHub Issues backend operations (gh; statuses as labels)
-  todo-tasks/      local TODO.md backend operations (checkbox states)
+  tasks/           task-backend subcommands; backends/ holds one doc per backend (jira, github, azure-devops, todo)
   plan-next/       one planning iteration (/loop target)
   implement-next/  one implementation iteration (/loop target)
 
@@ -41,10 +39,10 @@ legacy/            previous implementations (reference only)
 ## Conventions
 
 - Skills are instructions, not code: they describe *what* to do and name example commands; the executing agent adapts them to the user's OS/shell. Don't encode brittle one-liners that only work in bash.
-- No secrets anywhere: backend credentials live in `acli`/`gh` native auth; `.microfactory/config.yaml` holds settings only.
+- No secrets anywhere: backend credentials live in `acli`/`gh`/`az` native auth; `.microfactory/config.yaml` holds settings only.
 - The task backend is the single source of truth for **work**: assignment, status and all cross-session coordination go through issue state (assignee, status/labels/checkboxes), never through local files. It is a progress indicator, not a filing cabinet — durable **knowledge** goes the other way, into `CLAUDE.md`, a skill, or `docs/LESSONS*.md`, committed with the change that taught it.
-- The claim protocol (assign → wait → verify → retry) is what makes concurrent sessions safe. Any change to a backend skill must preserve it.
-- Workflow skills (`plan-next`, `implement-next`) stay backend-agnostic: they delegate all task operations to the backend skills.
+- The claim protocol (assign → wait → verify → retry) is what makes concurrent sessions safe. Any change to the `tasks` skill or a backend doc must preserve it.
+- Workflow skills (`plan-next`, `implement-next`) stay backend-agnostic: they delegate all task operations to the `tasks` skill's subcommands.
 - Keep frontmatter `description` fields precise — they are how the model decides to load a skill.
 - Before changing a skill or adding a config setting, read `docs/LESSONS.md` — it holds judgements earlier iterations reached but had no mandate to act on, and may already record why the change you are about to make is contentious.
 - Making something optional invalidates every sentence that assumed it, and those sentences rarely name it — grep finds none of them. Re-read each affected file end to end after adding a setting.

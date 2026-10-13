@@ -1,11 +1,10 @@
----
-name: todo-tasks
-description: Local TODO.md backend operations for the microfactory — find eligible items, claim, create, update, comment, and transition by editing checkbox states in a markdown file. Used by plan-next and implement-next when the configured backend is todo. Good for trying out the factory without Jira or GitHub.
----
-
-# TODO.md task operations
+# TODO.md backend
 
 Tasks live in a local markdown file specified as `project` path in `.microfactory/config.yaml` (default `TODO.md`). No authentication, no CLI — operations are file edits. The issue key is `TODO-<n>`, a stable id written at the start of the item's text (before any `[tag]` markers). Items from before this convention have no id; for those, fall back to the item's line number as its key, and give it a real id the next time it's touched (see Updating).
+
+## Setup
+
+No tool and no login. **Detect** (also the check run before every other subcommand): the file named by `project` exists. If it does not, `setup` offers to create it with a couple of example items in the format below; a check just stops.
 
 ## File format
 
@@ -74,6 +73,7 @@ This is a bulk, one-time correction — normal operation only ever adds one id a
 
 ## Other operations
 
+- **List**: the items in the file, top to bottom; `open` means checkbox `[ ]`, `[>]`, `[~]`, `[?]` or `[p]` (not `[x]`).
 - **View**: find the line whose text starts with `TODO-<n>` (or, for a legacy item, line `<n>` itself).
 - **Comment**: insert an indented note line **below the item and below any notes already there**, so notes stay in the order they were written: `  - Note: <text>`. A multi-line comment becomes one indented `- Note:` line per line of text, keeping the same indentation.
 - **List comments**: the indented `- Note:` lines beneath the item, in file order. This file has no authors or timestamps, so a reader tells notes apart by their content alone — which is why `refine-story` marks its own with a fixed first line.

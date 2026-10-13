@@ -11,7 +11,7 @@ This is the front of the pipeline: `breakdown-feature` → `refine-story` (for t
 
 ## 1. Read configuration and take the input
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the backend skill matching `backend` — you need its **list**, **view**, and **create** operations.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `list`, `view`, and `create` subcommands.
 
 The input is a file path, a URL, or text the user pastes. **Read all of it before slicing anything** — requirement documents contradict themselves across sections, and a breakdown built from the first half will be wrong.
 
@@ -43,7 +43,7 @@ Order the stories so a session claiming them top-down never hits a missing prere
 
 ## 6. Write each story
 
-**Write stories the way this project already writes them.** Before writing the first one, look at how existing items are written — list a dozen recent items in the backend and read a few in full, and check for an issue template (`.github/ISSUE_TEMPLATE/`, a Jira description template, the existing entries in `TODO.md`) or a house style in `CONTRIBUTING.md`. If a convention is there, follow it: the same headings, the same length, the same voice. A backlog whose newest twenty items look nothing like the older ones is worse than an imperfect template.
+**Write stories the way this project already writes them.** Before writing the first one, look at how existing items are written — list a dozen recent items in the backend and read a few in full, and check for an issue template (`.github/ISSUE_TEMPLATE/`, a Jira or Azure DevOps description template, the existing entries in `TODO.md`) or a house style in `CONTRIBUTING.md`. If a convention is there, follow it: the same headings, the same length, the same voice. A backlog whose newest twenty items look nothing like the older ones is worse than an imperfect template.
 
 **If no convention is detectable**, use the agile story form where it fits:
 
@@ -63,11 +63,11 @@ Whatever the shape, keep it lean: no acceptance criteria — not as a checklist,
 
 ## 7. Present the set for approval
 
-Show the ordered list: title, one-line goal and which have open questions. **Create nothing until the user approves.** Invite them to cut, merge, or reorder — a twenty-story dump helps nobody, and on Jira or GitHub these writes are visible to their whole team.
+Show the ordered list: title, one-line goal and which have open questions. **Create nothing until the user approves.** Invite them to cut, merge, or reorder — a twenty-story dump helps nobody, and on Jira, GitHub or Azure DevOps these writes are visible to their whole team.
 
 ## 8. Create and report
 
-Through the backend skill's create operation:
+With the `tasks` skill's `create`:
 
 - **Unassigned**, in the initial status, so sessions can claim them.
 - **A shared label or tag naming the feature**, so the set stays identifiable as one body of work.
