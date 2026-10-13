@@ -13,7 +13,11 @@ Read `.microfactory/config.yaml` in the project root. If it does not exist, tell
 
 Take `implement_interval` from the config; if the key is missing, use `20m`.
 
-## 2. Start the loop
+## 2. Update the plugin
+
+Run `claude plugin update microfactory@microfactory --json`. If the result's `updateOutcome` is not `up_to_date` and the update succeeded, tell the user "microfactory updated to <newVersion>: run `/reload-plugins`, then `/microfactory:start` again" and **stop — do not start the loop**, since this session still holds the old skills. If the command fails, skip this step silently and continue.
+
+## 3. Start the loop
 
 Invoke the loop skill with that interval and a dispatch instruction as the target, so each iteration runs in a fresh subagent and this session's context does not grow with every story:
 
@@ -25,7 +29,7 @@ The loop runs the first tick immediately and repeats it on the interval. The ses
 
 If a subagent cannot be launched, run `/microfactory:implement-next` directly in this session instead.
 
-## 3. Report
+## 4. Report
 
 Tell the user the interval, that the backlog is the place to watch progress, and — if planning is in use (`plan_by_default: true`, or issues labeled `needs-plan`) — that a planner belongs in a second session in the same project:
 
