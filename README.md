@@ -50,10 +50,10 @@ A typical setup uses two sessions in the same project:
 
 ```
 # session 1 — implementer
-/loop 20m /microfactory:implement-next
+/microfactory:start
 
 # session 2 — planner (only needed if you use planning)
-/loop 10m /microfactory:plan-next
+/microfactory:start-planning
 ```
 
 Add more implementer sessions to scale out. You can also run a single iteration by invoking a skill directly, optionally for a specific issue:

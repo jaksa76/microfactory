@@ -17,13 +17,15 @@ If `plan_by_default` is `false`, mention that only issues labeled `needs-plan` w
 
 ## 2. Start the loop
 
-Invoke the loop skill with that interval and `plan-next` as the target:
+Invoke the loop skill with that interval and a dispatch instruction as the target, so each iteration runs in a fresh subagent and this session's context does not grow with every plan:
 
 ```
-/loop <plan_interval> /microfactory:plan-next
+/loop <plan_interval> If the planning subagent you launched earlier is still running, do nothing and end this tick. Otherwise launch one subagent in the background whose whole job is to run /microfactory:plan-next and end with a single line: the issue key and outcome. Print the number of plans written in this session, the duration of the session and the rate (plan every N minutes).
 ```
 
-The loop runs the first iteration immediately and repeats it on the interval; each iteration ends quietly when no work is available.
+The loop runs the first tick immediately and repeats it on the interval. The session keeps only each subagent's one-line report.
+
+If a subagent cannot be launched, run `/microfactory:plan-next` directly in this session instead.
 
 ## 3. Report
 

@@ -54,14 +54,14 @@ Include only the keys relevant to the chosen backend. If a config file already e
 
 For the role the user chose for this session, invoke the loop skill:
 
-- implementer: `/loop <implement_interval> /microfactory:implement-next`
-- planner: `/loop <plan_interval> /microfactory:plan-next`
+- implementer: `/microfactory:start`
+- planner: `/microfactory:start-planning`
 
 Then tell the user how to run the other role in a second Claude Code session in the same project, e.g.:
 
 ```
 claude
-/loop 10m /microfactory:plan-next
+/microfactory:start-planning
 ```
 
 If planning is not used (no plan-by-default and no `needs-plan` issues expected), a single implementer session is enough — say so instead of prescribing two sessions.
