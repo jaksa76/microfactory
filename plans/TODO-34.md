@@ -48,20 +48,25 @@ sessions say *why*.
 3. **Tokens** — per iteration and on average: total, output, and the share spent in subagents (the
    cold review is the usual suspect). Cache-read and fresh input are kept apart, since they cost
    differently.
-4. **Configuration** — only the keys that change factory behaviour: `backend`, `plan_by_default`,
+4. **Plugin version** — the `version` in the plugin's `.claude-plugin/plugin.json`, found from the
+   skill's own base directory (two levels up from `skills/feedback/`). Feedback about a skill is
+   useless if the developers cannot tell which wording it was written against, and a session in a long
+   loop may still run an older version than the one installed, so the skill reports the version it is
+   running from and, when `plugin.json` on disk differs from the version in the skill's path, both.
+5. **Configuration** — only the keys that change factory behaviour: `backend`, `plan_by_default`,
    `auto_plan`, `feature_branches`, `deep_review`, and the two intervals. A fixed whitelist: `project`,
    `jira_site`, account ids, usernames and organisation names identify the user or the project and are
    never read into the pack.
-5. **Sample sessions, read closely** — for each mode with at least two iterations, the **longest**
+6. **Sample sessions, read closely** — for each mode with at least two iterations, the **longest**
    (by duration, ties by tokens) and the one **nearest the median**. Read their structure — the
    sequence of steps, repeated test runs, retries, failed commands, review rounds, re-reads of the same
    files, time between steps — to say where the time and tokens went and whether the long one differs
    from the average one in a way a skill instruction could prevent.
-6. **What the repo already recorded** — a plan file touched again by the commit that implemented it
+7. **What the repo already recorded** — a plan file touched again by the commit that implemented it
    (the plan was wrong), fix-up commits after an implementation (a defect the iteration's own review
    missed), refinement threads that needed answers the skill could have asked earlier, `docs/LESSONS.md`
    entries that point at a skill's wording.
-7. **This session's context**, when there is any — reviewer findings accepted and rejected, plan
+8. **This session's context**, when there is any — reviewer findings accepted and rejected, plan
    corrections, blocked iterations, things the user corrected. It exists nowhere else.
 
 **Where durations and tokens come from.** Claude Code writes every session to
@@ -94,7 +99,7 @@ It qualifies when it is one of:
 and it is a **pattern** (at least two iterations or issues) or a **single severe failure** that stopped
 work. A one-off ("this plan was wrong") is recorded nowhere — the bar `implement-next` step 10 sets.
 Capped at five per analysis, ranked by measured cost. Each finding has: **Title**, **Where** (skill and
-step, backend doc, or setting), **Evidence** (the measurement or observed behaviour, project-neutral),
+step, backend doc, or setting), **Version** (the plugin version it was observed on), **Evidence** (the measurement or observed behaviour, project-neutral),
 **Proposed change** (concrete enough to become a plan), **Severity**.
 
 ### What `send` sends — and says
@@ -102,7 +107,7 @@ step, backend doc, or setting), **Evidence** (the measurement or observed behavi
 `send` prints the `drafted` findings and then states, in these words or close to them: *"Sending these
 will open issues on the microfactory repository. They contain no project-specific information — no
 code, file names, story titles or keys, names, URLs or credentials; only the findings above and a short
-block of aggregate numbers (how many stories, average duration and tokens, and which of the settings
+block of aggregate numbers (the microfactory version, how many stories, average duration and tokens, and which of the settings
 `backend`, `plan_by_default`, `auto_plan`, `feature_branches`, `deep_review` you use). Send them?"* The
 user picks which to send (multi-select, so a single finding can be declined). The exact issue text is
 shown before sending. Each chosen finding is searched for upstream first (`gh issue list --repo
@@ -192,7 +197,8 @@ upstream repo is a constant of the plugin), `tasks` (uses only `list` and `comme
      transcript-handling rules (aggregate with the shell, sample sessions through a condensed view,
      fallback and a stated gap when the transcripts are unavailable); (c) apply the finding bar and
      the cap of five; (d) drop what the file already holds; (e) write each finding with
-     `status: drafted` and a short aggregate block (counts, averages, whitelisted settings); (f) advance
+     `status: drafted`, the plugin version, and a short aggregate block (counts, averages,
+     whitelisted settings); (f) advance
      `Analysed through` to the current HEAD, even when nothing was found — an empty result is a result;
      (g) report in two or three lines.
    - **`send`** — (a) if no `drafted` findings, say so and stop; (b) print them and the
@@ -220,17 +226,20 @@ No automated suite exists for skills; verify as `CLAUDE.md` describes.
 2. **Repeat guard.** Run it again with no new commits: "nothing new", no duplicate entries.
 3. **Fallback.** Point the skill at a project with no transcript directory (a scratch repo): it falls
    back to commit timestamps, says tokens are unavailable, and fabricates no numbers.
-4. **Whitelist.** Put a fake `jira_site`/`github_username` in a scratch config; confirm neither appears
+4. **Version.** The findings file and the issue text carry the version from `plugin.json`; bump it in a
+   scratch copy and confirm the next analysis records the new one and flags a mismatch with the loaded
+   skill's path.
+5. **Whitelist.** Put a fake `jira_site`/`github_username` in a scratch config; confirm neither appears
    anywhere in the findings file.
-5. **Send without `gh`.** Findings stay `drafted`, nothing is installed, the message explains the
+6. **Send without `gh`.** Findings stay `drafted`, nothing is installed, the message explains the
    manual route.
-6. **Send with `gh`** (live smoke, needs auth, against a throwaway repo by temporarily changing the
+7. **Send with `gh`** (live smoke, needs auth, against a throwaway repo by temporarily changing the
    target rather than filing noise upstream): the no-project-information statement is shown first; one
    chosen finding becomes an issue, one declined stays in the file as `declined`; a second `send` shows
    neither again; a rerun of `analyse` that finds the same problem does not re-add it.
-7. **Privacy read.** Read the drafted issue text and check no path, key, title or name from the project
+8. **Privacy read.** Read the drafted issue text and check no path, key, title or name from the project
    survived.
-8. **Mention.** With a `drafted` finding present, `/microfactory:start` ends with the one-line mention
+9. **Mention.** With a `drafted` finding present, `/microfactory:start` ends with the one-line mention
    before the loop begins; with none, nothing is said.
 
 ## Risks / Edge Cases
