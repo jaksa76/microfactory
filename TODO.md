@@ -17,23 +17,23 @@
   - Note: Step 5 currently writes a plan and self-approves it whenever plans/<KEY>.md is missing. When the team wants planning to happen only in the planner loop, implement-next should instead implement directly from the issue and its refinement thread; a `needs-plan` issue with no approved plan is still never implementable.
 - [x] TODO-31 - capture lessons learnt while completing a story in CLAUDE.md (or the project's AGENTS.md) as part of implement-next
   - Note: Step 10 posts an iteration note on the issue, where nothing ever reads it again. When the divergence is a durable fact about the project (an undocumented convention, a build step, a trap in the codebase) it belongs in the project's instruction file, committed with the same change. Needs a rule for what is durable enough to write down, and an edit discipline that keeps CLAUDE.md from growing without bound.
+- [x] TODO-24 - run each implement-next iteration in a separate context so no state carries between implementations [needs-plan]
+  - Note: A long-running /loop accumulates every previous iteration's context, which makes later iterations slower, more expensive and prone to leaking assumptions from an unrelated story. Options include delegating the iteration body to a subagent or launching a fresh session per iteration; the constraint is that the backend stays the only cross-iteration state, so whatever runs must be able to claim, push and update the issue on its own.
+  - Note: Plan written: plans/TODO-24.md — awaiting review.
 - [x] TODO-42 - add support for Azure DevOps Boards for task management through the cli tool `az`
   - Note: Plan written: plans/TODO-42.md — awaiting review.
   - Note: Implemented: tasks skill with backends/ (jira, github, azure-devops, todo) and setup-with-approved-installs; not run against a live Azure DevOps org.
-- [ ] TODO-32 - create a "start-improving" skill that starts the find-improvements loop, interval from an `improve_interval` config key (default 24h)
-  - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <improve_interval> /microfactory:find-improvements. find-improvements currently blocks on user approval before creating tasks (step 5), so the skill must say how an unattended sweep behaves — e.g. a cap on tasks created per sweep, or creating nothing and reporting instead. Add improve_interval to init-factory's interview and to the config example.
-- [ ] TODO-33 - create a "start-refining" skill that starts the refine-story loop, interval from a `refine_interval` config key (default 1h)
-  - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <refine_interval> /microfactory:refine-story. refine-story already skips items carrying its **Refinement questions** marker; verify that skip holds for every backend so a loop never re-asks a refined story, and that the loop ends quietly when all eligible items are already refined.
-- [?] TODO-24 - run each implement-next iteration in a separate context so no state carries between implementations [needs-plan]
-  - Note: A long-running /loop accumulates every previous iteration's context, which makes later iterations slower, more expensive and prone to leaking assumptions from an unrelated story. Options include delegating the iteration body to a subagent or launching a fresh session per iteration; the constraint is that the backend stays the only cross-iteration state, so whatever runs must be able to claim, push and update the issue on its own.
-  - Note: Plan written: plans/TODO-24.md — awaiting review.
 - [ ] TODO-34 - create a skill that reviews all the work done in a session and sends feedback for improving the microfactory itself [needs-plan]
   - Note: Reads the iteration notes, plans, diffs and refinement threads produced in the session and turns the recurring failures into concrete proposals for the skills themselves (what misled the planner, what the reviewer kept catching, where a story was the wrong size). Needs somewhere to send them — issues in the microfactory repo via a backend of its own, or a local report file — which is the main thing to settle before implementing.
 - [ ] TODO-35 - run the microfactory feedback skill when an implementation iteration finds no work
   - Note: implement-next currently ends the iteration silently when nothing is claimable, so an idle factory does nothing at all. Instead spend the idle iteration on the feedback skill above. Depends on that skill existing, and needs a guard so a long idle stretch does not send the same feedback every interval.
+- [ ] TODO-40 - add option to create new feature branches from previous feature branch rather than main in order to have the latest changes even before a PR is merged.
+- [ ] TODO-33 - create a "start-refining" skill that starts the refine-story loop, interval from a `refine_interval` config key (default 1h)
+  - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <refine_interval> /microfactory:refine-story. refine-story already skips items carrying its **Refinement questions** marker; verify that skip holds for every backend so a loop never re-asks a refined story, and that the loop ends quietly when all eligible items are already refined.
 - [ ] TODO-36 - add a looping mechanism for when running in copilot
 - [ ] TODO-37 - add a looping mechanism for when running in codex
 - [ ] TODO-38 - generic fallback when subagents are unavailable
 - [ ] TODO-39 - make planning loop work even with a dirty workspace
-- [ ] TODO-40 - add option to create new feature branches from previous feature branch rather than main in order to have the latest changes even before a PR is merged.
 - [ ] TODO-41 - add labels to override base branch behaviour
+- [ ] TODO-32 - create a "start-improving" skill that starts the find-improvements loop, interval from an `improve_interval` config key (default 24h)
+  - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <improve_interval> /microfactory:find-improvements. find-improvements currently blocks on user approval before creating tasks (step 5), so the skill must say how an unattended sweep behaves — e.g. a cap on tasks created per sweep, or creating nothing and reporting instead. Add improve_interval to init-factory's interview and to the config example.
