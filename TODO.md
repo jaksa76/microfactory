@@ -23,8 +23,9 @@
 - [x] TODO-42 - add support for Azure DevOps Boards for task management through the cli tool `az`
   - Note: Plan written: plans/TODO-42.md — awaiting review.
   - Note: Implemented: tasks skill with backends/ (jira, github, azure-devops, todo) and setup-with-approved-installs; not run against a live Azure DevOps org.
-- [ ] TODO-34 - create a skill that reviews all the work done in a session and sends feedback for improving the microfactory itself [needs-plan]
+- [?] TODO-34 - create a skill that reviews all the work done in a session and sends feedback for improving the microfactory itself [needs-plan]
   - Note: Reads the iteration notes, plans, diffs and refinement threads produced in the session and turns the recurring failures into concrete proposals for the skills themselves (what misled the planner, what the reviewer kept catching, where a story was the wrong size). Needs somewhere to send them — issues in the microfactory repo via a backend of its own, or a local report file — which is the main thing to settle before implementing.
+  - Note: Plan written: plans/TODO-34.md — awaiting review.
 - [ ] TODO-35 - run the microfactory feedback skill when an implementation iteration finds no work
   - Note: implement-next currently ends the iteration silently when nothing is claimable, so an idle factory does nothing at all. Instead spend the idle iteration on the feedback skill above. Depends on that skill existing, and needs a guard so a long idle stretch does not send the same feedback every interval.
 - [ ] TODO-40 - add option to create new feature branches from previous feature branch rather than main in order to have the latest changes even before a PR is merged.
