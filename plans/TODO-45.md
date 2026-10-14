@@ -86,6 +86,35 @@ the view a debugging developer wants.
 **Remove** shows the exact lines (and the file left empty, if so), asks, then deletes. An emptied
 `<skill>.md` is deleted; an emptied `general.md` section header is removed with it.
 
+**As built, where this plan said otherwise** (found by the cold review and the scratch runs from Testing):
+
+- **Approval is one section** shared by add, remove and extract. "Apply without asking" approves only
+  what the user asked for as drafted — never an offered alternative, never past the checks — and with
+  no one to ask and no such instruction, the skill prints the change and writes nothing (this
+  non-interactive rule was add-only in the plan).
+- **If the `overrides` skill cannot be read, the skill stops** with an accurate diagnosis rather than
+  checking blind. *Step titles* unreadable is a separate, softer fallback: keep the user's wording of
+  the step in the rule and mark it unverified, rather than the plan's "write it without a step
+  reference", which would change the rule from "at this step" to "throughout".
+- **More checks than planned:** a rule that names a step is never general (titles repeat across skills),
+  and borrowed steps count (`implement-next` may name `plan-next`'s); "belongs elsewhere" points
+  project facts (build, tests, layout) at `CLAUDE.md`; general rules are compared against every
+  skill-specific file they would be shadowed by, a same-level contradiction **replaces** the old line
+  instead of sitting beside it, and "unattended" is judged per target, including for general rules.
+- **A new rule never deletes an existing line the user did not name.** Found in a scratch run: for
+  "for every skill, always run make e2e-smoke" against an `implement-next.md` containing "Never run
+  the e2e suite", the first version replaced that line and quietly narrowed the scope. Now only a
+  request that *changes an existing rule* replaces its line; a contradicting new rule shows both and
+  asks (writing nothing when nobody can answer), and a scope the rule cannot have is asked about, not
+  narrowed.
+- **List and explain also report text no skill will read** (a `##` section named neither `all` nor a
+  skill, a `<skill>.md` for a skill that does not read overrides); extract refuses `all` and unknown
+  names and normalises the file name.
+- The config-key list is not copied into the skill: it is read from `init-factory` each time.
+- Draft says what was asked and no more; extra requirements are offered as suggestions.
+- `ARCHITECTURE.md` says the skill works wherever the plugin is installed *provided the agent tells a
+  skill where it lives*; otherwise it stops.
+
 ## Files to Change
 
 | File | Change |

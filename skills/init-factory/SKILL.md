@@ -87,4 +87,4 @@ claude
 
 If planning is not used (no plan-by-default and no `needs-plan` issues expected), a single implementer session is enough — say so instead of prescribing two sessions.
 
-Finally, mention that the project can add its own instructions for any skill under `.microfactory/overrides/` (`general.md` to start; see the README's *Customizing* section). Do not create those files.
+Finally, mention that the project can add its own instructions for any skill under `.microfactory/overrides/` (`general.md` to start; see the README's *Customizing* section), and that `/microfactory:customize` adds, explains and removes them for the user. Do not create those files.

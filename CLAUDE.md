@@ -27,7 +27,8 @@ skills/
   refine-story/    one refinement iteration: ask the open product questions via issue comments (/loop target)
   breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
   tasks/           task-backend subcommands; backends/ holds one doc per backend (jira, github, azure-devops, todo)
-  overrides/       read the project's .microfactory/overrides/ files for a skill; loaded in step 1 of the workflow and finder skills
+  overrides/       read the project's .microfactory/overrides/ files for a skill; loaded by the workflow and finder skills
+  customize/       add, change, list, explain, extract and remove those override files (interactive)
   plan-next/       one planning iteration (/loop target)
   implement-next/  one implementation iteration (/loop target)
 

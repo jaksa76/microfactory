@@ -107,6 +107,8 @@ Every plan needs a Rollout section.
 
 Text before the first `##` heading (or under `## all`) applies to every skill; a `## <skill>` section applies to that skill only. When a section grows, move it into `.microfactory/overrides/<skill>.md`; the skill-specific file wins over `general.md`, and both win over the skill's own steps. Refer to steps by their title, not their number. Overrides cannot weaken the factory's safeguards — the claim protocol, review before commit, approval gates, no secrets — and ones that try, name a step that does not exist, or need a human in an unattended loop are ignored and reported. Overrides change how the factory behaves; how your project builds and is laid out belongs in `CLAUDE.md`, and an on/off switch belongs in `.microfactory/config.yaml`. They are project policy for unattended loops, so review changes to them like code.
 
+You do not have to write these files by hand: `/microfactory:customize always run make e2e-smoke after implementing` works out where the rule belongs, checks it against the safeguards and the real step names, shows the change and writes it once you approve (it does not commit). `/microfactory:customize list` shows what is overridden, `explain` says what each override does and whether it is being ignored, and `remove` and `extract` tidy up as the file grows.
+
 ## Legacy
 
 The previous implementations are kept for reference: `legacy/bash-factory/` (bash scripts + Docker worker containers, with its full test suite) and `legacy/hub/` (the original hub-based design).
