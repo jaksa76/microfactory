@@ -28,7 +28,20 @@ If the user declines an install, stop and tell them what to run themselves; do n
 
 Never write tokens or secrets anywhere — the backend CLIs store their own credentials.
 
-## 3. Write the configuration file
+## 3. Map the statuses
+
+Only for `jira` and `azure-devops` — `github` and `todo` do not rename statuses, so skip this step for them.
+
+The factory uses seven statuses (`initial`, `planning`, `awaiting_plan_review`, `plan_approved`, `in_progress`, `in_review`, `done`); the `tasks` skill's *Status names* and the backend doc's table give their default names. A project whose workflow already has its own names can map them instead of adding duplicates.
+
+1. **Get the project's real statuses.** Azure DevOps: the state lists `setup` produced for each type. Jira: `acli` cannot list a project's statuses, so ask the user for the names of the ones that match.
+2. **Ask which status plays each role**, pre-filled with the existing config's `statuses:` when there is one and the defaults otherwise (AskUserQuestion where options fit). `planning`, `in_progress` and `in_review` may be skipped (`null`); the other four must be set.
+3. **Validate the resolved values** — what each key ends up as, defaults included, not just the keys the user typed. Names must be distinct across all seven (compare case-insensitively, and lists must not overlap): if `plan_approved` shared a name with `initial`, approved items would look unplanned and the claim logic would break; if it is `Active` while `in_progress` still defaults to a list containing `Active`, an item the implementer just claimed would look plan-approved. Ask again on a clash.
+4. **Warn before pointing `plan_approved` at a status that already holds items** — only when it is mapped to a name that is neither the default nor already in the existing config. Count the items in it (a JQL or WIQL count; a status that does not exist yet counts as zero, even where the query errors) and, when there are any, show the number and ask for confirmation: the implementer picks up everything in that status as soon as the loop starts.
+5. **Azure DevOps only:** run the backend doc's *Checking the mapping* section; it stops with instructions when a mapped state does not exist yet.
+6. **Keep only the differences.** The keys that differ from the defaults go under `statuses:` in the next step; when none differ, write no `statuses:` block.
+
+## 4. Write the configuration file
 
 Create `.microfactory/config.yaml` in the project root (settings only, no secrets — safe to commit):
 
@@ -49,11 +62,16 @@ github_username: octocat
 # azure-devops backend only:
 azure_devops_org: https://dev.azure.com/myorg
 azure_devops_user: me@example.com
+# jira and azure-devops only, optional — write it only for statuses that differ from the
+# defaults (a name or a list; ~ skips planning, in_progress or in_review). Example:
+# statuses:
+#   plan_approved: Ready
+#   in_progress: Active
 ```
 
-Include only the keys relevant to the chosen backend. If a config file already exists, show it and ask before overwriting.
+Include only the keys relevant to the chosen backend. If a config file already exists, show it — its `statuses:` block included — and ask before overwriting.
 
-## 4. Start the loop
+## 5. Start the loop
 
 For the role the user chose for this session, invoke the loop skill:
 

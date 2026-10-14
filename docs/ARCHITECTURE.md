@@ -59,6 +59,9 @@ jira_account_id: ...       # jira only
 github_username: ...       # github only
 azure_devops_org: ...      # azure-devops only (organization URL)
 azure_devops_user: ...     # azure-devops only (sign-in email / UPN)
+statuses:                  # jira and azure-devops only, optional: rename the factory's statuses
+  plan_approved: Ready     #   keys: initial, planning, awaiting_plan_review, plan_approved,
+  in_progress: Active      #   in_progress, in_review, done; value = name or list; ~ skips some
 ```
 
 ## The `tasks` skill and its backends
@@ -85,11 +88,11 @@ The todo backend is single-user and skips verification.
 
 ### Eligibility
 
-Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip-plan` skips it (and takes precedence). With `plan_by_default: true`, implementation only picks up **Plan Approved** issues (or `skip-plan` ones).
+Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip-plan` skips it (and takes precedence). With `plan_by_default: true`, implementation only picks up **Plan Approved** issues — the `plan_approved` status, under whatever name the project gave it — (or `skip-plan` ones).
 
 ### Status mapping
 
-Jira and Azure DevOps use real workflow statuses / states; on Azure DevOps the process must be customized to add `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` (setup checks for them). GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
+Jira and Azure DevOps use real workflow statuses / states. The names are defaults a project can override with the optional `statuses:` map in config (keys `initial`, `planning`, `awaiting_plan_review`, `plan_approved`, `in_progress`, `in_review`, `done`; a value is a name or a list, `null` skips `planning`, `in_progress` or `in_review`). The workflow skills keep using the logical names and the `tasks` skill resolves them; `init-factory` proposes the mapping, rejects duplicate names and warns when `plan_approved` points at a status that already holds items. On Azure DevOps the process must have a state for each mapped status — by default `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` have to be added (setup checks for them). GitHub (labels) and todo (checkboxes) ignore the map. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
 
 ## Workflow skills
 

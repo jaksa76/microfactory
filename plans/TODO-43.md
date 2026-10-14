@@ -34,8 +34,29 @@ special cases: Azure DevOps's initial state `New`/`To Do`/`Proposed`, its In Pro
 as lists, instead of prose in the backend doc. (In the design discussion only `initial` was a list;
 making the rule uniform is simpler than singling it out.)
 
-**Defaults are today's behaviour, byte for byte.** With no `statuses:` the queries and transitions
-the backends issue must be identical to the current ones.
+**Defaults are today's behaviour.** With no `statuses:` the queries and transitions the backends
+issue must select and do the same as the current ones. *As built:* they are semantically identical,
+not byte-identical — `status = "To Do"` is now `status IN ("To Do")` so a list fits the same shape,
+and the Jira implementation/`plan_by_default: true` row is wrapped in parentheses. That row was a bare
+`status = "Plan Approved" OR (...)` appended after `AND assignee is EMPTY`, so the OR bound looser than
+the `AND`s and let assigned items through; the parentheses fix that as a side effect.
+
+**As built, where this plan said otherwise:**
+
+- The Azure DevOps state check is *not* a `setup` step. `setup` runs before any mapping exists, so
+  it only lists each type's states; the check is a separate section, *Checking the mapping*, run by
+  `init-factory` after the mapping is settled.
+- `init-factory` validates the **resolved** values (defaults included), so `plan_approved: Active`
+  against the default `in_progress` list is a clash. It warns about a populated `plan_approved` only
+  when that name is new (neither the default nor already in the config) and counts a status that does
+  not exist yet as zero. It pre-fills from an existing config's `statuses:`.
+- The config example is commented out, so copying the template writes no mapping.
+- The old "ask the user once if neither `Done` nor `Closed` works" fallback is gone: it cannot run
+  inside an unattended loop, and a failed transition after the work is already a warning.
+- Live check against `checkitlabsdev` / `CheckIT Learning`: the overridden queries parse, a
+  `plan_approved` of `Ready` holds 141 items (so the warning would fire), and **WIQL returns no rows,
+  not an error, for a state name that does not exist** — recorded in `azure-devops.md`.
+- A line in the `tasks` skill says a hand-edited map skips `init-factory`'s checks.
 
 | Key | Jira default | Azure DevOps default |
 |---|---|---|

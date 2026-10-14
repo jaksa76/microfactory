@@ -68,7 +68,7 @@ Issue state drives everything; the board is your monitor.
 
 1. An issue starts in **To Do** (or as an open unassigned GitHub issue / `[ ]` TODO item).
 2. If it needs planning (`needs-plan` label, or `plan_by_default: true` in config), a planner session claims it, writes `plans/<KEY>.md`, pushes it, and transitions the issue to **Awaiting Plan Review**.
-3. A human reviews the plan and transitions the issue to **Plan Approved**.
+3. A human reviews the plan and transitions the issue to **Plan Approved** (or the status `statuses.plan_approved` names).
 4. An implementer session claims it and implements it, following the approved plan — or, where `auto_plan` is on, writing its own plan first and treating it as approved when the issue never went through planning. It runs the tests, pushes, and transitions the issue to **Done** — or opens a PR and transitions to **In Review** when feature branches are enabled.
 
 Every implemented diff is reviewed before it is committed. By default that review goes to a **fresh agent** that sees the issue, the plan and the diff but not the implementer's reasoning — an author reads its own diff as intended rather than as written. Set `deep_review: false` if you would rather not spend a second agent per iteration; the implementer then reviews its own diff against the same checklist.
@@ -89,7 +89,7 @@ And if you are starting from a spec rather than a backlog, `/microfactory:breakd
 spec ──breakdown-feature──> stories ──refine-story──> specified stories ──plan-next──> plans ──implement-next──> code
 ```
 
-On Azure DevOps, statuses are work item states (the process needs `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` added); on GitHub they map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
+On Jira and Azure DevOps, statuses are workflow statuses / work item states, and the names above are defaults: an optional `statuses:` map in `.microfactory/config.yaml` renames them (`init-factory` proposes the mapping), so a project with its own `Ready` or `Active` need not add duplicates. On Azure DevOps the process needs a state for each mapped status — by default `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` have to be added. On GitHub they map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
 ## Legacy
 

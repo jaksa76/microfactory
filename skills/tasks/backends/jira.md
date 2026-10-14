@@ -11,21 +11,37 @@ Prerequisites: `acli` installed and logged in to the Jira site.
 - **Log in** if `auth status` fails: the user must do it interactively — suggest `! acli jira auth login` (they need the site, their email, and an API token).
 - **Config values**: ask for the Jira site host (e.g. `mycompany.atlassian.net`) → `jira_site`; take the account id from `acli jira auth status` output, or ask → `jira_account_id` (needed for self-assignment).
 
+## Status names
+
+The workflow's statuses, each overridable under `statuses:` in config (see the `tasks` skill, *Status names*):
+
+| Key | Default status |
+|---|---|
+| `initial` | `To Do` |
+| `planning` | `Planning` |
+| `awaiting_plan_review` | `Awaiting Plan Review` |
+| `plan_approved` | `Plan Approved` |
+| `in_progress` | `In Progress` |
+| `in_review` | `In Review` |
+| `done` | `Done` |
+
+Below, `<initial>` and `<plan_approved>` stand for the configured names, double-quoted and comma-separated (`"To Do"`; with a list, `"To Do", "Open"`). Escape a `"` or `\` inside a name.
+
 ## Finding eligible issues
 
 Search with `acli jira workitem search --jql "<JQL>" --json --paginate`. Build the JQL by mode and the `plan_by_default` setting; always `ORDER BY rank ASC` and require `assignee is EMPTY`:
 
 | Mode | plan_by_default | JQL conditions |
 |---|---|---|
-| planning | true | `status = "To Do" AND (labels NOT IN ("skip-plan") OR labels is EMPTY)` |
-| planning | false | `status = "To Do" AND labels IN ("needs-plan")` |
-| implementation | true | `status = "Plan Approved" OR (status = "To Do" AND labels IN ("skip-plan"))` |
-| implementation | false | `status = "To Do" AND (labels NOT IN ("needs-plan") OR labels is EMPTY)` |
+| planning | true | `status IN (<initial>) AND (labels NOT IN ("skip-plan") OR labels is EMPTY)` |
+| planning | false | `status IN (<initial>) AND labels IN ("needs-plan")` |
+| implementation | true | `(status IN (<plan_approved>) OR (status IN (<initial>) AND labels IN ("skip-plan")))` |
+| implementation | false | `status IN (<initial>) AND (labels NOT IN ("needs-plan") OR labels is EMPTY)` |
 
-Example (implementation, plan_by_default false):
+Example (implementation, plan_by_default false, default statuses):
 
 ```
-acli jira workitem search --jql "project = \"MYPROJ\" AND assignee is EMPTY AND status = \"To Do\" AND (labels NOT IN (\"needs-plan\") OR labels is EMPTY) ORDER BY rank ASC" --json --paginate
+acli jira workitem search --jql "project = \"MYPROJ\" AND assignee is EMPTY AND status IN (\"To Do\") AND (labels NOT IN (\"needs-plan\") OR labels is EMPTY) ORDER BY rank ASC" --json --paginate
 ```
 
 ## Claiming an issue
@@ -37,7 +53,7 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 3. Assign it to yourself: `acli jira workitem assign --key <KEY> --assignee <jira_account_id> --yes`
 4. **Wait about 10 seconds**, then re-fetch the issue and check the assignee's account id.
 5. If the assignee is not you, another worker won the race — go back to step 1.
-6. Transition the issue: to `Planning` (planning mode) or `In Progress` (implementation mode). If the transition is unavailable, warn and continue.
+6. Transition the issue: to the `planning` status (planning mode) or the `in_progress` status (implementation mode). If the transition is unavailable, warn and continue; if the status is `null`, skip it.
 7. Fetch the issue's summary and description: `acli jira workitem view <KEY> --json`
 
 ## Creating a work item
@@ -66,6 +82,6 @@ Updating an item's content never changes its assignee or status — editing is n
 - **View**: `acli jira workitem view <KEY> --json` (summary, description, labels, assignee).
 - **Comment**: `acli jira workitem comment create --key <KEY> --body "<text>"`
 - **List comments**: `acli jira workitem comment list --key <KEY> --json --paginate` (oldest first by default; `--order` takes `created`/`updated` with a `+`/`-` prefix).
-- **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`
+- **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`, with the status resolved from the table under *Status names* (for a list, try each name in order and use the first the workflow accepts; for a `null` status, do nothing).
 
-Statuses used by the factory workflow: `Planning`, `Awaiting Plan Review`, `Plan Approved` (set by a human reviewer), `In Progress`, `In Review`, `Done`. Transitions may not exist in every workflow — treat failed transitions after work is done as warnings, not errors.
+Statuses used by the factory workflow are those in the table under *Status names*; `plan_approved` is set by a human reviewer. Transitions may not exist in every workflow — treat failed transitions after work is done as warnings, not errors.

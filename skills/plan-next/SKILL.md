@@ -54,7 +54,7 @@ The plan must be executable by another agent with no context beyond the repo and
 2. Comment on the issue with a link to the plan file (derive the blob URL from the git remote when it is a GitHub repo; otherwise mention the repo path `plans/<KEY>.md`).
 3. Transition the issue to `Awaiting Plan Review`.
 
-Steps 2–3 are best effort: if they fail, warn and finish — the pushed plan is the important artifact. A human reviews the plan and transitions the issue to `Plan Approved` (or edits the plan); `implement-next` picks it up from there.
+Steps 2–3 are best effort: if they fail, warn and finish — the pushed plan is the important artifact. A human reviews the plan and transitions the issue to its approved status — `Plan Approved`, or whatever `statuses.plan_approved` names on Jira and Azure DevOps — (or edits the plan); `implement-next` picks it up from there.
 
 Handle **one issue per iteration**.
 
