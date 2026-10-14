@@ -89,7 +89,7 @@ And if you are starting from a spec rather than a backlog, `/microfactory:breakd
 spec ──breakdown-feature──> stories ──refine-story──> specified stories ──plan-next──> plans ──implement-next──> code
 ```
 
-On GitHub and Azure DevOps, statuses map to labels / tags (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
+On Azure DevOps, statuses are work item states (the process needs `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` added); on GitHub they map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
 ## Legacy
 

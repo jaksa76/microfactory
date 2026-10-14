@@ -15,10 +15,21 @@ Prerequisites: the Azure CLI, its `azure-devops` extension, and a login.
 - **Install the extension** if missing, after the user approves: `az extension add --name azure-devops`. Do **not** enable `extension.use_dynamic_install` — it would make `az` install extensions silently later, which is the opposite of asking.
 - **Log in** if `az account show` fails: suggest `! az login` (or `! az devops login` with a personal access token).
 - **Config values**: ask for the organization URL → `azure_devops_org` and the project name → `project`; take the user identity from `az ad signed-in-user show --query userPrincipalName -o tsv`, or ask → `azure_devops_user`.
+- **Check the states**: the factory's statuses are work item states (next section), and a process has to be customized to have them. For each type the factory will work on (`Task` and the story type), list its states with `az devops invoke --area wit --resource workitemtypes --route-parameters project=<project> type="<type>" --org ... --api-version 7.1 --query "states[].name" -o tsv`. If `Planning`, `Awaiting Plan Review`, `Plan Approved` or `In Review` is missing, tell the user which states to add and where — a process administrator adds them under Organization settings → Process → (an inherited copy of the project's process) → the type → States — and do not continue until they have. System processes (Basic, Agile, Scrum, CMMI) cannot be edited; the project has to be moved to an inherited process first. Give `Plan Approved` the **Proposed** category (not started) and the others **In Progress**; the queries below match state names, so the categories only affect board columns and reports.
 
-## Statuses are tags
+## Statuses are states
 
-Azure DevOps states differ by process template (Basic: To Do/Doing/Done; Agile: New/Active/Resolved/Closed; Scrum: New/Approved/Committed/Done; CMMI: Proposed/Active/Resolved/Closed) and cannot be extended from the CLI, so the factory's statuses are stored as **tags** (`System.Tags`), as GitHub stores them as labels. Only **Done** changes the real state. That is also why eligibility uses `[System.StateCategory] = 'Proposed'`, which means "open, not started" in every process.
+The factory's statuses are the work item's own `System.State`, as on Jira; only the opt-in flags (`needs-plan`, `skip-plan`, `needs-refinement`, …) are **tags** (`System.Tags`), as Jira's are labels.
+
+| Status | State |
+|---|---|
+| (new item) | the type's initial state: `New` (`To Do` in Basic, `Proposed` in CMMI) |
+| Planning | `Planning` |
+| Awaiting Plan Review | `Awaiting Plan Review` |
+| Plan Approved | `Plan Approved` |
+| In Progress | `In Progress`, or the process's own equivalent the type already has (`Active`, `Doing`, `Committed`) |
+| In Review | `In Review` |
+| Done | `Done`, or `Closed` if that is rejected (ask the user once if neither works) |
 
 `System.Tags` is one `; `-separated string and a write **replaces** it. To add or remove a tag, re-`show` the item, compute the new list, and write all of it: `az boards work-item update --id <N> --fields "System.Tags=a; b; c"`. This is safe because only the item's current owner edits its tags.
 
@@ -29,23 +40,22 @@ Azure DevOps states differ by process template (Basic: To Do/Doing/Done; Agile: 
 ```
 SELECT [System.Id] FROM WorkItems
 WHERE [System.TeamProject] = '<project>'
-  AND [System.StateCategory] = 'Proposed'
   AND [System.AssignedTo] = ''
   AND [System.WorkItemType] NOT IN ('Epic', 'Feature')
-  AND <tag conditions>
+  AND <state and tag conditions>
 ORDER BY [Microsoft.VSTS.Common.StackRank] ASC, [System.Id] ASC
 ```
 
-Tag conditions by mode and `plan_by_default`. `NOT CONTAINS` also matches items with no tags:
+`[System.StateCategory]` is not a WIQL field, so conditions match state names. `INITIAL` below stands for `[System.State] IN ('New', 'To Do', 'Proposed')`. `NOT CONTAINS` also matches items with no tags:
 
-| Mode | plan_by_default | Tag conditions |
+| Mode | plan_by_default | Conditions |
 |---|---|---|
-| planning | true | `[System.Tags] NOT CONTAINS 'skip-plan' AND [System.Tags] NOT CONTAINS 'awaiting-plan-review' AND [System.Tags] NOT CONTAINS 'plan-approved'` |
-| planning | false | `[System.Tags] CONTAINS 'needs-plan' AND [System.Tags] NOT CONTAINS 'awaiting-plan-review' AND [System.Tags] NOT CONTAINS 'plan-approved'` |
-| implementation | true | `([System.Tags] CONTAINS 'plan-approved' OR [System.Tags] CONTAINS 'skip-plan')` |
-| implementation | false | `[System.Tags] NOT CONTAINS 'needs-plan'` |
+| planning | true | `INITIAL AND [System.Tags] NOT CONTAINS 'skip-plan'` |
+| planning | false | `INITIAL AND [System.Tags] CONTAINS 'needs-plan'` |
+| implementation | true | `([System.State] = 'Plan Approved' OR (INITIAL AND [System.Tags] CONTAINS 'skip-plan'))` |
+| implementation | false | `INITIAL AND [System.Tags] NOT CONTAINS 'needs-plan'` |
 
-The `awaiting-plan-review` / `plan-approved` exclusions in planning mode matter: a planned item stays in the `Proposed` category and is unassigned again once the planner hands it over, so without them it would be planned forever.
+Expand `INITIAL` in the query; WIQL has no macros. A planned item leaves the initial state, so it cannot be planned twice.
 
 ## Claiming an issue
 
@@ -56,7 +66,7 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 3. Assign yourself: `az boards work-item update --id <N> --assigned-to <azure_devops_user> --org ...`
 4. **Wait about 5 seconds**, then `az boards work-item show --id <N>` and read `System.AssignedTo.uniqueName`.
 5. If it is not you (compare case-insensitively), another worker won the race — go back to step 1.
-6. Only now add the tag — `in-progress`, or in planning mode `in-planning` instead — by read-modify-write. Tags are written only after the assignment is verified, so racing workers never overwrite each other's.
+6. Transition the item: to `Planning` (planning mode) or `In Progress` (implementation mode). The state is changed only after the assignment is verified, so racing workers never overwrite each other's. If the transition is rejected, warn and continue.
 7. Read the title and description from the `show` output (`System.Title`, `System.Description`, HTML).
 
 ## Creating an issue
@@ -69,23 +79,14 @@ az boards work-item create --type "Task" --title "<title>" --description "<body>
 
 ## Updating an issue
 
-`az boards work-item update --id <N> --title "<title>" --description "<body>"` — pass only what you are changing. Labels are tags: read-modify-write as above. Updating never changes the assignee, the status tags or the state.
+`az boards work-item update --id <N> --title "<title>" --description "<body>"` — pass only what you are changing. Labels are tags: read-modify-write as above. Updating never changes the assignee or the state.
 
 ## Other operations
 
-- **List**: `az boards query` with the WIQL above minus the assignee and tag conditions, `ORDER BY [System.Id] DESC`; add `AND [System.StateCategory] <> 'Completed'` for open items only (`'Completed'` is the category name for Done/Closed states).
+- **List**: `az boards query` with the WIQL above minus the assignee, state and tag conditions, `ORDER BY [System.Id] DESC`; add `AND [System.State] NOT IN ('Done', 'Closed', 'Removed')` for open items only.
 - **View**: `az boards work-item show --id <N> -o json` (`System.Title`, `System.Description`, `System.Tags`, `System.State`, `System.AssignedTo`).
 - **Comment**: `az boards work-item update --id <N> --discussion "<text>" --org ...`
 - **List comments**: `az devops invoke --area wit --resource comments --route-parameters project=<project> workItemId=<N> --api-version 7.1-preview --org ...` — oldest first, each with `createdBy.displayName`, `createdDate`, `text`. The text is **HTML**: strip the tags and decode entities before looking for a marker line such as `**Refinement questions**`.
-- **Transition**:
+- **Transition**: `az boards work-item update --id <N> --state "<state>" --org ...`, with the state from the table under "Statuses are states". **Awaiting Plan Review** also **clears the assignee** (`--assigned-to ""`), so the implementer can claim the item once a human reviewer sets it to **Plan Approved**.
 
-| Status | Change |
-|---|---|
-| In Progress | add `in-progress` |
-| Planning | add `in-planning`, remove `in-progress` |
-| Awaiting Plan Review | add `awaiting-plan-review`, remove `in-planning`, **clear the assignee** (`--assigned-to ""`) |
-| Plan Approved | done by a human reviewer: they add `plan-approved`, remove `awaiting-plan-review` |
-| In Review | add `in-review`, remove `in-progress` |
-| Done | remove `in-progress` / `in-review`, then set `--state` to the process's completed state: `Done`, or `Closed` if that is rejected (ask the user once if neither works) |
-
-Treat failed tag or state changes after the work is done as warnings, not errors.
+Treat failed state changes after the work is done as warnings, not errors.

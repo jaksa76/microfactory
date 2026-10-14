@@ -89,7 +89,7 @@ Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip
 
 ### Status mapping
 
-Jira uses real workflow statuses. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). Azure DevOps maps them to the same tags — its states differ by process template and cannot be extended from the CLI — and only Done changes the real state. The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
+Jira and Azure DevOps use real workflow statuses / states; on Azure DevOps the process must be customized to add `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` (setup checks for them). GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
 
 ## Workflow skills
 
