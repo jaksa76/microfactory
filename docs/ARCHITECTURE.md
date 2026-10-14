@@ -33,6 +33,7 @@ skills/
   breakdown-feature/ turn a spec or requirements doc into sequenced, sized stories
   tasks/           task-backend subcommands (setup, find, list, claim, view, create, update, comment, comments, transition)
     backends/      jira.md (acli), github.md (gh), azure-devops.md (az), todo.md — loaded one at a time
+  overrides/       read the project's .microfactory/overrides/ files for a skill (loaded by the workflow and finder skills)
   plan-next/       one planning iteration (a /loop target)
   implement-next/  one implementation iteration (a /loop target)
 
@@ -92,7 +93,7 @@ Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip
 
 ### Status mapping
 
-Jira and Azure DevOps use real workflow statuses / states. The names are defaults a project can override with the optional `statuses:` map in config (keys `initial`, `planning`, `awaiting_plan_review`, `plan_approved`, `in_progress`, `in_review`, `done`; a value is a name or a list, `null` skips `planning`, `in_progress` or `in_review`). The workflow skills keep using the logical names and the `tasks` skill resolves them; `init-factory` proposes the mapping, rejects duplicate names and warns when `plan_approved` points at a status that already holds items. On Azure DevOps the process must have a state for each mapped status — by default `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` have to be added (setup checks for them). GitHub (labels) and todo (checkboxes) ignore the map. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
+Jira and Azure DevOps use real workflow statuses / states. The names are defaults a project can override with the optional `statuses:` map in config (keys `initial`, `planning`, `awaiting_plan_review`, `plan_approved`, `in_progress`, `in_review`, `done`; a value is a name or a list, `null` skips `planning`, `in_progress` or `in_review`). The workflow skills keep using the logical names and the `tasks` skill resolves them; `init-factory` proposes the mapping, rejects duplicate names and warns when `plan_approved` points at a status that already holds items. On Azure DevOps the process must have a state for each mapped status — by default `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` have to be added (`init-factory` checks the mapping against the process's states). GitHub (labels) and todo (checkboxes) ignore the map. GitHub maps statuses to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`; Done = close). The todo backend maps them to checkbox characters (`[ ]` open, `[>]` in progress, `[~]` planning, `[?]` awaiting review, `[p]` plan approved, `[x]` done).
 
 ## Workflow skills
 
@@ -170,6 +171,14 @@ The destination files also give the factory something the backlog never had — 
 Skills are the interesting destination. A lesson that is really a procedure becomes a skill, and skills are already a lazily loaded, trigger-indexed store: the `description` field states when to load it and the harness does the rest. Where a `LESSONS-*.md` file is used instead, its pointer has to name the situation rather than the subject — "when changing a config key, read this first" is followed, "see LESSONS.md" is not — because a reference nothing knows when to open is a reference nobody opens.
 
 The cost of routing by shape is that an iteration has to judge which destination applies, unattended, and will sometimes choose wrong. The gain is that the knowledge lands where it is loaded rather than where it is filed, and the backlog goes back to being a list of work.
+
+## Overrides
+
+A project changes how the factory behaves without forking the plugin by writing extra instructions in markdown under `.microfactory/overrides/`: `general.md` first, and `<skill>.md` once a section outgrows it. `plan-next`, `implement-next`, `refine-story`, `breakdown-feature`, `find-improvements` and the four finders load the `overrides` skill in their first step, name themselves, and follow what it returns; `tasks`, `start`, `start-planning`, `init-factory` and `install-agentize` do not read overrides, because backend mechanics, loop intervals and setup are not project policy.
+
+Precedence is most-specific-wins: `<skill>.md`, then the `## <skill>` section of `general.md`, then its general text (before the first heading or under `## all`), then the skill's own steps. The guardrails live in one place, the `overrides` skill, not repeated in each skill: an override can never weaken the claim protocol, review before commit, the approval gates, the no-secrets rule or the backend's role as the source of truth for work. Offending overrides, overrides naming a step that does not exist, and overrides that would need a human in an unattended run are ignored and reported, not guessed at. Steps are named by title, not number, so renumbering a skill does not silently break a project's overrides — which makes a skill's step titles an interface. A skill that borrows another's steps (`implement-next` uses `plan-next`'s analysis and plan-writing) loads the overrides for both, the borrower's winning on conflict; and skills that pull first load overrides only after the pull, so a just-merged change applies to the same iteration.
+
+Overrides are deliberately free-form text rather than named hooks or config values: a setting that fits on/off belongs in `.microfactory/config.yaml`, how the project builds belongs in its `CLAUDE.md`, and overrides cover the behaviour neither can name. If the same few overrides recur ("run X before commit"), promoting them to named extension points is a compatible follow-up. The files are project policy for unattended loops, so changes to them deserve the same review as code.
 
 ## Continuous operation and scaling
 

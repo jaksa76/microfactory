@@ -9,6 +9,8 @@ One analysis pass: orient → hunt for gaps → filter → report ranked finding
 
 ## 1. Orient
 
+Load the `overrides` skill for `find-testing-improvements` and follow what it returns.
+
 - Find the suites and the layers that exist: unit, integration, end-to-end, contract, manual scripts.
 - Find how they are actually invoked. The CI configuration is the authority on what runs; the README often describes an older setup.
 - Note how long they take and what they need (a database, a browser, network, credentials).

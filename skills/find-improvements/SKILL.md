@@ -13,7 +13,7 @@ This is the only skill that creates tasks. The finders themselves never write to
 
 Read `.microfactory/config.yaml` in the project root. If it does not exist, tell the user to run `/microfactory:init-factory` and stop.
 
-Load the `tasks` skill — you will need its `list` and `create` subcommands and its eligibility rules.
+Load the `tasks` skill — you will need its `list` and `create` subcommands and its eligibility rules. Load the `overrides` skill for `find-improvements` and follow what it returns.
 
 ## 2. Choose the areas to sweep
 

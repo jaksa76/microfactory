@@ -17,6 +17,7 @@ Load the `tasks` skill for all task operations below; each is one of its subcomm
 
 - If the working tree has uncommitted changes, report it and stop this iteration — never plan on top of someone's half-done work.
 - Pull the latest default branch.
+- Then load the `overrides` skill for `plan-next` and follow what it returns — after the pull, so a change to the override files that was just merged applies to this iteration.
 
 ## 3. Claim an issue
 

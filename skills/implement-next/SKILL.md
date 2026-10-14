@@ -17,6 +17,8 @@ Load the `tasks` skill for all task operations below; each is one of its subcomm
 
 Pull the latest default branch.
 
+Then load the `overrides` skill for `implement-next` — and for `plan-next`, whose analysis, plan-writing and thread-reading steps this skill borrows — and follow what it returns. It comes after the pull so that a change to the override files that was just merged applies to this iteration.
+
 ## 3. Claim an issue
 
 - **No argument**: claim the next implementation-eligible issue with the `tasks` skill's `claim implementation`. If there is no eligible issue, say "No implementation work available." and end the iteration — the loop cadence handles waiting.

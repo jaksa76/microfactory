@@ -64,6 +64,25 @@ instruction the skill cannot follow, and skip it with a note.
 **`init-factory` does not create the files.** It mentions the directory in its closing message so
 developers know it exists. Empty placeholder files would suggest they are expected.
 
+**As built, where this plan said otherwise** (found in the cold review and by running the scratch repo
+from Testing):
+
+- `plan-next` and `implement-next` load `overrides` at the end of step 2, **after** the pull, not in
+  step 1 — before it, a just-merged override change would apply one iteration late. The other seven
+  skills keep it in step 1.
+- `implement-next` loads the overrides for `plan-next` as well, because it borrows `plan-next`'s
+  analysis, plan-writing and thread-reading steps; both apply to those steps and the borrower wins on
+  conflict. The load sentence in `implement-next` therefore names two skills.
+- The review invariant says every implementation is reviewed and an override can change who
+  reviews, never whether, so "skip the review" cannot be read as "no findings outstanding".
+- Scoping is spelled out: a leading `# Title` is general text, `###` belongs to its `##` section, a
+  `##` section named neither `all` nor a skill is ignored, headings match case-insensitively.
+- "Unattended" means a `/loop` or `claude -p`, and the loop targets always count. Asking *through the
+  backend* (a comment) is allowed; stopping to wait for the user is not. The finders have no approval
+  conversation, so only `breakdown-feature` and `find-improvements` may add to one.
+- `docs/ARCHITECTURE.md`'s status paragraph said `setup` checks the Azure DevOps states; that was
+  made false by TODO-43's restructuring and is corrected here.
+
 ## Files to Change
 
 | File | Change |

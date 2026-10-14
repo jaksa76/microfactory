@@ -9,6 +9,8 @@ One analysis pass: orient → hunt for smells → filter → report ranked findi
 
 ## 1. Orient
 
+Load the `overrides` skill for `find-design-improvements` and follow what it returns.
+
 - Read what the project says about itself: `CLAUDE.md`/`AGENTS.md`, `README`, `docs/`, ADRs.
 - Read the build and manifest files to learn the module boundaries the project intends.
 - Map the entry points and the main flows between modules. State this map to yourself before judging anything — most bad design advice comes from not knowing what the code is for.

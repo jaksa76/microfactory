@@ -11,6 +11,8 @@ Reading component source tells you what the UI is made of, not what it is like t
 
 ## 1. Orient
 
+Load the `overrides` skill for `find-ui-improvements` and follow what it returns.
+
 - Find the UI: framework, screens or routes, shared components, design tokens or design system, and any design documentation.
 - Find how to run it: a project run/dev skill if the repo has one, the README, the dev script in the manifest, the compose file.
 - Note who the users are and what the product is for. Friction only matters relative to a job someone is trying to do.

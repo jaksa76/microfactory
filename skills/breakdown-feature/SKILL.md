@@ -11,7 +11,7 @@ This is the front of the pipeline: `breakdown-feature` → `refine-story` (for t
 
 ## 1. Read configuration and take the input
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `list`, `view`, and `create` subcommands.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `list`, `view`, and `create` subcommands. Load the `overrides` skill for `breakdown-feature` and follow what it returns.
 
 The input is a file path, a URL, or text the user pastes. **Read all of it before slicing anything** — requirement documents contradict themselves across sections, and a breakdown built from the first half will be wrong.
 

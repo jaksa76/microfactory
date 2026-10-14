@@ -91,6 +91,22 @@ spec ──breakdown-feature──> stories ──refine-story──> specified 
 
 On Jira and Azure DevOps, statuses are workflow statuses / work item states, and the names above are defaults: an optional `statuses:` map in `.microfactory/config.yaml` renames them (`init-factory` proposes the mapping), so a project with its own `Ready` or `Active` need not add duplicates. On Azure DevOps the process needs a state for each mapped status — by default `Planning`, `Awaiting Plan Review`, `Plan Approved` and `In Review` have to be added. On GitHub they map to labels (`in-progress`, `in-planning`, `awaiting-plan-review`, `plan-approved`, `in-review`); on the TODO.md backend they map to checkbox characters. See the skill files under `skills/` for the exact conventions.
 
+## Customizing
+
+To change how the factory behaves in your project without forking the plugin, write additional instructions in plain markdown under `.microfactory/overrides/`. Start with one file, `general.md`:
+
+```markdown
+Never touch anything under `legacy/`.
+
+## implement-next
+After the Implement step, run `make e2e-smoke`; it must pass before the review.
+
+## plan-next
+Every plan needs a Rollout section.
+```
+
+Text before the first `##` heading (or under `## all`) applies to every skill; a `## <skill>` section applies to that skill only. When a section grows, move it into `.microfactory/overrides/<skill>.md`; the skill-specific file wins over `general.md`, and both win over the skill's own steps. Refer to steps by their title, not their number. Overrides cannot weaken the factory's safeguards — the claim protocol, review before commit, approval gates, no secrets — and ones that try, name a step that does not exist, or need a human in an unattended loop are ignored and reported. Overrides change how the factory behaves; how your project builds and is laid out belongs in `CLAUDE.md`, and an on/off switch belongs in `.microfactory/config.yaml`. They are project policy for unattended loops, so review changes to them like code.
+
 ## Legacy
 
 The previous implementations are kept for reference: `legacy/bash-factory/` (bash scripts + Docker worker containers, with its full test suite) and `legacy/hub/` (the original hub-based design).

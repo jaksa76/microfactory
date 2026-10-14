@@ -11,6 +11,8 @@ Bias toward **subtraction**. Every dependency is a permanent liability — suppl
 
 ## 1. Orient
 
+Load the `overrides` skill for `find-library-improvements` and follow what it returns.
+
 - Find the manifests and lockfiles, and which ecosystems are in play (a repo often has more than one).
 - Note whether versions are pinned and whether lockfiles are committed.
 - Note what automation already runs: Dependabot, Renovate, `npm audit` in CI. Findings must not duplicate work a bot already does.

@@ -15,7 +15,7 @@ Act on **at most one item per iteration**.
 
 ## 1. Read configuration and pick an item
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `view`, `comments`, and `comment` subcommands, and nothing else.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `view`, `comments`, and `comment` subcommands, and nothing else. Load the `overrides` skill for `refine-story` and follow what it returns.
 
 **With an issue key argument**: work that item.
 
