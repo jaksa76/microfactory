@@ -48,7 +48,11 @@ One contract, four backends. This file defines the **subcommands** and the rules
 | implementation | true | plan approved (or tagged `plan-approved`), or tagged `skip-plan` |
 | implementation | false | not tagged `needs-plan` |
 
-"Tagged" is a label, tag, or inline `[tag]` marker, whichever the backend has; each backend doc states the exact query. Oldest, or highest-ranked, first.
+"Tagged" is a label, tag, or inline `[tag]` marker, whichever the backend has; each backend doc states the exact query.
+
+**Current sprint.** With `current_sprint_only: true` in config, an item must also be in the current sprint to be eligible, in both modes. A missing key means false. Only `jira` and `azure-devops` have sprints; `github` and `todo` treat the setting as false. The filter narrows `find`, and so `claim` without a key; `claim` with a key, `list` and refinement are not filtered. New items (`create`) land in the backlog and are not eligible until a human adds them to a sprint.
+
+**Order.** `find` returns items best first. `order_by: rank` (the default, also when the key is missing) is the backlog's manual drag-and-drop order; `order_by: priority` is the priority field, highest first, with rank breaking ties. Only `jira` and `azure-devops` have these fields; `github` takes the oldest issue first and `todo` the file order, whatever `order_by` says.
 
 **Claiming is optimistic locking** — other sessions may be claiming concurrently, so every backend follows it exactly: find eligible items → take the first → **assign yourself** → **wait** → **re-read the assignee** → if it is not you, another worker won, go back to the start → only then transition. The wait length and the verification query are per backend; skipping the verification is never allowed (the single-user todo backend is the only exception, and says so). Any change to a backend doc must preserve this.
 

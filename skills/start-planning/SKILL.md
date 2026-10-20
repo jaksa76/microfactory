@@ -13,7 +13,7 @@ Read `.microfactory/config.yaml` in the project root. If it does not exist, tell
 
 Take `plan_interval` from the config; if the key is missing, use `10m`.
 
-If `plan_by_default` is `false`, mention that only issues labeled `needs-plan` will be picked up, so the loop may find nothing to do until such an issue exists.
+If `plan_by_default` is `false`, mention that only issues labeled `needs-plan` will be picked up, so the loop may find nothing to do until such an issue exists. Likewise, if `current_sprint_only` is `true` (Jira and Azure DevOps), mention that only issues in the current sprint will be picked up.
 
 ## 2. Start the loop
 

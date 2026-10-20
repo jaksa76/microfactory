@@ -13,6 +13,8 @@ Read `.microfactory/config.yaml` in the project root. If it does not exist, tell
 
 Take `implement_interval` from the config; if the key is missing, use `20m`.
 
+If `current_sprint_only` is `true` (Jira and Azure DevOps), mention that only issues in the current sprint will be picked up, so the loop may find nothing to do between sprints.
+
 ## 2. Update the plugin
 
 Run `claude plugin update microfactory@microfactory --json`. If the result's `updateOutcome` is not `up_to_date` and the update succeeded, tell the user "microfactory updated to <newVersion>: run `/reload-plugins`, then `/microfactory:start` again" and **stop — do not start the loop**, since this session still holds the old skills. If the command fails, skip this step silently and continue.

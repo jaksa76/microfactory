@@ -29,7 +29,7 @@ Below, `<initial>` and `<plan_approved>` stand for the configured names, double-
 
 ## Finding eligible issues
 
-Search with `acli jira workitem search --jql "<JQL>" --json --paginate`. Build the JQL by mode and the `plan_by_default` setting; always `ORDER BY rank ASC` and require `assignee is EMPTY`:
+Search with `acli jira workitem search --jql "<JQL>" --json --paginate`. Build the JQL by mode and the `plan_by_default` setting, and always require `assignee is EMPTY`:
 
 | Mode | plan_by_default | JQL conditions |
 |---|---|---|
@@ -38,10 +38,14 @@ Search with `acli jira workitem search --jql "<JQL>" --json --paginate`. Build t
 | implementation | true | `(status IN (<plan_approved>) OR (status IN (<initial>) AND labels IN ("skip-plan")))` |
 | implementation | false | `status IN (<initial>) AND (labels NOT IN ("needs-plan") OR labels is EMPTY)` |
 
-Example (implementation, plan_by_default false, default statuses):
+With `current_sprint_only: true`, add `AND sprint in openSprints()`. It matches an issue in any open sprint, and nothing when no sprint is open, as on a Kanban board or between sprints.
+
+End with `ORDER BY rank ASC`, or `ORDER BY priority DESC, rank ASC` when `order_by: priority` (Jira sorts priorities in the priority scheme's order, so `DESC` puts the highest first).
+
+Example (implementation, plan_by_default false, default statuses, current_sprint_only true, order_by priority):
 
 ```
-acli jira workitem search --jql "project = \"MYPROJ\" AND assignee is EMPTY AND status IN (\"To Do\") AND (labels NOT IN (\"needs-plan\") OR labels is EMPTY) ORDER BY rank ASC" --json --paginate
+acli jira workitem search --jql "project = \"MYPROJ\" AND assignee is EMPTY AND status IN (\"To Do\") AND (labels NOT IN (\"needs-plan\") OR labels is EMPTY) AND sprint in openSprints() ORDER BY priority DESC, rank ASC" --json --paginate
 ```
 
 ## Claiming an issue
@@ -49,7 +53,7 @@ acli jira workitem search --jql "project = \"MYPROJ\" AND assignee is EMPTY AND 
 Other factory sessions may be claiming concurrently, so follow this optimistic-locking protocol exactly:
 
 1. Search with the eligibility JQL above. If the result is empty, there is no work — stop.
-2. Take the **first** issue (highest rank).
+2. Take the **first** issue.
 3. Assign it to yourself: `acli jira workitem assign --key <KEY> --assignee <jira_account_id> --yes`
 4. **Wait about 10 seconds**, then re-fetch the issue and check the assignee's account id.
 5. If the assignee is not you, another worker won the race — go back to step 1.

@@ -1,6 +1,6 @@
 # Azure DevOps Boards backend (via az)
 
-All operations use `az boards` from the `azure-devops` extension of the Azure CLI. Configuration comes from `.microfactory/config.yaml`: `project` = the Azure DevOps project name, `azure_devops_org` = the organization URL (`https://dev.azure.com/myorg`), `azure_devops_user` = your identity (sign-in email / UPN) for self-assignment.
+All operations use `az boards` from the `azure-devops` extension of the Azure CLI. Configuration comes from `.microfactory/config.yaml`: `project` = the Azure DevOps project name, `azure_devops_org` = the organization URL (`https://dev.azure.com/myorg`), `azure_devops_user` = your identity (sign-in email / UPN) for self-assignment, `azure_devops_team` = the team whose current sprint counts (only with `current_sprint_only`).
 
 Pass `--org <azure_devops_org>` on every `az boards` and `az devops` call, and `--project <project>` on `query` and `create` (`show` and `update` take only the item id — confirm with `az boards work-item update --help`). Do not rely on `az devops configure` defaults: one machine may serve several projects.
 
@@ -14,7 +14,7 @@ Prerequisites: the Azure CLI, its `azure-devops` extension, and a login.
 - **Install `az`** if missing, after the user approves: `winget install --exact --id Microsoft.AzureCLI` on Windows, `brew install azure-cli` on macOS, Microsoft's documented package-repository or script method on Linux (https://learn.microsoft.com/cli/azure/install-azure-cli). A fresh install may need a new shell before `az` is on `PATH` — say so rather than retrying blindly.
 - **Install the extension** if missing, after the user approves: `az extension add --name azure-devops`. Do **not** enable `extension.use_dynamic_install` — it would make `az` install extensions silently later, which is the opposite of asking.
 - **Log in** if `az account show` fails: suggest `! az login` (or `! az devops login` with a personal access token).
-- **Config values**: ask for the organization URL → `azure_devops_org` and the project name → `project`; take the user identity from `az ad signed-in-user show --query userPrincipalName -o tsv`, or ask → `azure_devops_user`.
+- **Config values**: ask for the organization URL → `azure_devops_org` and the project name → `project`; take the user identity from `az ad signed-in-user show --query userPrincipalName -o tsv`, or ask → `azure_devops_user`. When the caller says the user wants `current_sprint_only`, list the teams with `az devops team list --project <project> --org ... --query "[].name" -o tsv` and ask whose sprints the factory follows → `azure_devops_team`. A project has a sprint schedule per team, so there is no project-wide current sprint.
 - **List the states**: the factory's statuses are work item states (next section), and a process has to be customized to have them. For each type the factory will work on (`Task` and the story type), list its states with `az devops invoke --area wit --resource workitemtypes --route-parameters project=<project> type="<type>" --org ... --api-version 7.1 --query "states[].name" -o tsv`, and give the lists to `init-factory`, which maps the factory's statuses onto them.
 
 `setup` stops after listing the states: no mapping exists yet at that point, so whether the process has the states the factory needs is checked later, under *Checking the mapping*.
@@ -54,6 +54,10 @@ WHERE [System.TeamProject] = '<project>'
 ORDER BY [Microsoft.VSTS.Common.StackRank] ASC, [System.Id] ASC
 ```
 
+With `order_by: priority`, order by `[Microsoft.VSTS.Common.Priority] ASC` first (1 is the highest), then the same two keys.
+
+With `current_sprint_only: true`, add `AND [System.IterationPath] = @CurrentIteration('[<project>]\<azure_devops_team>')`. The macro needs the team; without one, or with a team name that does not exist, the query fails with `VS402612` instead of matching nothing. A team with no current sprint has nothing eligible.
+
 `[System.StateCategory]` is not a WIQL field, so conditions match state names. `INITIAL` below stands for `[System.State] IN (<initial>)` and `APPROVED` for `[System.State] IN (<plan_approved>)`, where `<initial>` and `<plan_approved>` are the configured names, single-quoted and comma-separated (`'New', 'To Do', 'Proposed'` by default; escape a `'` by doubling it). `NOT CONTAINS` also matches items with no tags:
 
 | Mode | plan_by_default | Conditions |
@@ -65,7 +69,7 @@ ORDER BY [Microsoft.VSTS.Common.StackRank] ASC, [System.Id] ASC
 
 Expand `INITIAL` and `APPROVED` in the query; WIQL has no macros. A planned item leaves the initial state, so it cannot be planned twice.
 
-WIQL does **not** error on a state name that no type has — it just matches nothing, so a state renamed after `init-factory` ran makes the factory look idle. When a `find` returns no items, say which state names the query used, so that an idle factory and a stale name can be told apart.
+WIQL does **not** error on a state name that no type has — it just matches nothing, so a state renamed after `init-factory` ran makes the factory look idle. When a `find` returns no items, say which state names the query used, and the team when the sprint filter is on, so that an idle factory and a stale name can be told apart.
 
 ## Claiming an issue
 
@@ -93,7 +97,7 @@ az boards work-item create --type "Task" --title "<title>" --description "<body>
 
 ## Other operations
 
-- **List**: `az boards query` with the WIQL above minus the assignee, state and tag conditions, `ORDER BY [System.Id] DESC`; add `AND [System.State] NOT IN (<done>, 'Removed')` for open items only (`<done>` formatted like `<initial>`).
+- **List**: `az boards query` with the WIQL above minus the assignee, state, tag and sprint conditions, `ORDER BY [System.Id] DESC`; add `AND [System.State] NOT IN (<done>, 'Removed')` for open items only (`<done>` formatted like `<initial>`).
 - **View**: `az boards work-item show --id <N> -o json` (`System.Title`, `System.Description`, `System.Tags`, `System.State`, `System.AssignedTo`).
 - **Comment**: `az boards work-item update --id <N> --discussion "<text>" --org ...`
 - **List comments**: `az devops invoke --area wit --resource comments --route-parameters project=<project> workItemId=<N> --api-version 7.1-preview --org ...` — oldest first, each with `createdBy.displayName`, `createdDate`, `text`. The text is **HTML**: strip the tags and decode entities before looking for a marker line such as `**Refinement questions**`.

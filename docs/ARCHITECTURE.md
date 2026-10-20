@@ -56,11 +56,14 @@ feature_branches: false    # implement on feature/<KEY> branches + PRs
 deep_review: true          # cold-review each diff with a fresh agent (absent = true)
 implement_interval: 20m    # /loop interval for implementer sessions
 plan_interval: 10m         # /loop interval for planner sessions
+current_sprint_only: false # jira and azure-devops only: plan and implement only current-sprint items (absent = false)
+order_by: rank             # jira and azure-devops only: rank (backlog order) | priority (absent = rank)
 jira_site: ...             # jira only
 jira_account_id: ...       # jira only
 github_username: ...       # github only
 azure_devops_org: ...      # azure-devops only (organization URL)
 azure_devops_user: ...     # azure-devops only (sign-in email / UPN)
+azure_devops_team: ...     # azure-devops with current_sprint_only: the team whose sprint counts
 statuses:                  # jira and azure-devops only, optional: rename the factory's statuses
   plan_approved: Ready     #   keys: initial, planning, awaiting_plan_review, plan_approved,
   in_progress: Active      #   in_progress, in_review, done; value = name or list; ~ skips some
@@ -80,7 +83,7 @@ Every backend doc has a **Setup** section: its prerequisites (CLI, extension, lo
 
 Claiming uses optimistic locking so any number of concurrent sessions is safe:
 
-1. Search for eligible unassigned work (oldest/highest-rank first)
+1. Search for eligible unassigned work (best first, per `order_by`)
 2. Assign the first issue to self
 3. Wait (~10s Jira, ~5s GitHub and Azure DevOps) and re-read the assignee
 4. If someone else won the race, retry from step 1
@@ -91,6 +94,8 @@ The todo backend is single-user and skips verification.
 ### Eligibility
 
 Controlled by `plan_by_default` plus labels: `needs-plan` forces planning, `skip-plan` skips it (and takes precedence). With `plan_by_default: true`, implementation only picks up **Plan Approved** issues — the `plan_approved` status, under whatever name the project gave it — (or `skip-plan` ones).
+
+`current_sprint_only: true` narrows both modes to the current sprint: `sprint in openSprints()` on Jira, `@CurrentIteration` for `azure_devops_team` on Azure DevOps (sprints there belong to a team, not to the project). Refinement is not filtered, because it prepares stories before they are pulled into a sprint. `order_by` chooses between the backlog's manual rank (the default) and priority, highest first, with rank breaking ties. GitHub and todo have neither sprints nor these fields, so they ignore both settings.
 
 ### Status mapping
 
