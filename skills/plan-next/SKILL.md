@@ -15,8 +15,10 @@ Load the `tasks` skill for all task operations below; each is one of its subcomm
 
 ## 2. Prepare the working tree
 
-- If the working tree has uncommitted changes, report it and stop this iteration — never plan on top of someone's half-done work.
-- Pull the latest default branch.
+Plan in the checkout as it is. It is often shared with an implementer session or a person, so it may have uncommitted changes or be on another branch. Neither stops planning. Planning never stashes, resets or switches branches, and never commits anything but the plan.
+
+- `git fetch origin`. When the checkout is on the default branch, also pull it (`git pull --no-rebase`). A pull that fails because of local changes is not fatal: warn and continue with what is there.
+- If the checkout is not on the default branch, or has uncommitted changes, warn: name the branch and the changed files. The code you explore then includes work that is not on the default branch, but the plan still describes a change to the default branch. Do not build on that work as if it were there. Where it matters, read the default branch's version of a file (`git show origin/<default>:<path>`), and say in the plan's **Risks / Edge Cases** which branch and uncommitted changes it was written next to.
 - Then load the `overrides` skill for `plan-next` and follow what it returns — after the pull, so a change to the override files that was just merged applies to this iteration.
 
 ## 3. Claim an issue
@@ -51,11 +53,18 @@ The plan must be executable by another agent with no context beyond the repo and
 
 ## 6. Publish and request review
 
-1. Commit **only** the plan file (`Add plan for <KEY>`) and push to the default branch.
+1. Commit **only** the plan file (`Add plan for <KEY>`) to the default branch, or to the branch a `plan-next` override names, and push it. Nothing else in the checkout goes into the commit, except the item itself on the `todo` backend (below).
+   - **The checkout is on that branch:** `git commit -m "Add plan for <KEY>" -- plans/<KEY>.md` commits that path alone, whatever else is staged or modified. Push; if the push is rejected, `git pull --no-rebase` and push again.
+   - **The checkout is on another branch:** commit without switching, so the checkout's branch, index and files stay as they are. Build the commit on `origin/<branch>` with a temporary index: point `GIT_INDEX_FILE` at a scratch file, then `git read-tree origin/<branch>`, `git update-index --add --cacheinfo 100644,<blob>,plans/<KEY>.md` (the blob id from `git hash-object -w plans/<KEY>.md`), `git write-tree`, `git commit-tree <tree> -p origin/<branch> -m "Add plan for <KEY>"`, and `git push origin <commit>:refs/heads/<branch>`. If the push is rejected, fetch and start again from `read-tree`. Then delete the local `plans/<KEY>.md`: the plan now lives on that branch, and an untracked copy would block a later checkout or pull of it.
 2. Comment on the issue with a link to the plan file (derive the blob URL from the git remote when it is a GitHub repo; otherwise mention the repo path `plans/<KEY>.md`).
 3. Transition the issue to `Awaiting Plan Review`.
 
-Steps 2–3 are best effort: if they fail, warn and finish — the pushed plan is the important artifact. A human reviews the plan and transitions the issue to its approved status — `Plan Approved`, or whatever `statuses.plan_approved` names on Jira and Azure DevOps — (or edits the plan); `implement-next` picks it up from there.
+Steps 2–3 are best effort: if they fail, warn and finish — the pushed plan is the important artifact.
+
+**On the `todo` backend, do steps 2–3 before step 1**, and commit the item with the plan. Its claim, note and status are edits to the TODO file, so they are not visible to anyone until they are pushed. The item's *block* is its line plus the indented note lines beneath it. Only that block goes into the commit; other edits to the file stay out.
+
+- **On the target branch:** if the item's block is the only local change to the TODO file, add the file to the commit (`git commit -m "Add plan for <KEY>" -- plans/<KEY>.md <todo-file>`). If the file has other local changes, leave it out and warn that the item's status is only in the checkout.
+- **On another branch:** add a second entry to the temporary index. Its content is `origin/<branch>`'s version of the TODO file with the item's block replaced by the checkout's block. Leave the checkout's TODO file as it is, because it is what the next iteration reads. A human reviews the plan and transitions the issue to its approved status — `Plan Approved`, or whatever `statuses.plan_approved` names on Jira and Azure DevOps — (or edits the plan); `implement-next` picks it up from there.
 
 Handle **one issue per iteration**.
 

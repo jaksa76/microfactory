@@ -15,7 +15,13 @@ Take `plan_interval` from the config; if the key is missing, use `10m`.
 
 If `plan_by_default` is `false`, mention that only issues labeled `needs-plan` will be picked up, so the loop may find nothing to do until such an issue exists. Likewise, if `current_sprint_only` is `true` (Jira and Azure DevOps), mention that only issues in the current sprint will be picked up.
 
-## 2. Start the loop
+## 2. Check the checkout
+
+Run `git status`. If the checkout is not on the default branch, or has uncommitted changes, show the user the branch and the changed files. Then ask whether to start the loop anyway (AskUserQuestion). Explain that each iteration plans against the checkout as it is, but commits only the plan file to the default branch. If they decline, stop.
+
+This is the only point where the planner asks. Once the loop is running, `plan-next` warns about a dirty checkout or another branch and carries on, because nobody is there to answer.
+
+## 3. Start the loop
 
 Invoke the loop skill with that interval and a dispatch instruction as the target, so each iteration runs in a fresh subagent and this session's context does not grow with every plan:
 
@@ -27,7 +33,7 @@ The loop runs the first tick immediately and repeats it on the interval. The ses
 
 If a subagent cannot be launched, run `/microfactory:plan-next` directly in this session instead.
 
-## 3. Report
+## 4. Report
 
 Tell the user the interval, that finished plans land in `plans/<KEY>.md` and wait for their approval (the backlog shows which issues are awaiting plan review), and that an implementer belongs in a second session in the same project:
 

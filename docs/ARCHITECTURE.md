@@ -115,6 +115,8 @@ Whether every implemented issue ends up with a plan file is `auto_plan`'s to dec
 
 **plan-next** — one iteration: read config → claim a planning-eligible issue → explore → write `plans/<KEY>.md` (Summary / Files to Change / Implementation Steps / Testing / Risks) → commit and push only the plan → comment the plan URL → transition to Awaiting Plan Review. A human approves the plan; implementer sessions pick the issue up from there.
 
+The planner usually shares its checkout with an implementer or a person, so it plans in the checkout as it is, uncommitted changes and current branch included. It warns about both and never stashes, resets or switches branches. The plan still goes to the default branch, or wherever a `plan-next` override sends it. When the checkout is on another branch, the commit is built on `origin/<default>` with a temporary index and pushed directly, so the checkout's branch, index and files are left untouched.
+
 **start** / **start-planning** — read config → `/loop <implement_interval> /microfactory:implement-next` or `/loop <plan_interval> /microfactory:plan-next`. Shortcuts for turning an already-initialized session into an implementer or a planner without re-running `init-factory`.
 
 `plan-next` and `implement-next` both take an optional issue key to work a specific issue, and both end quietly when no work is available — the `/loop` cadence replaces the old polling waits. Planner and implementer sessions are intentionally separate so planning is not blocked on human review.
