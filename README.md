@@ -75,7 +75,9 @@ Every implemented diff is reviewed before it is committed. By default that revie
 
 Labels tune behavior per issue: `needs-plan` / `skip-plan` for planning, `needs-branch` / `skip-branch` for feature branches, `needs-review` / `skip-review` for the cold review (`skip-*` wins).
 
-On Jira and Azure DevOps, `current_sprint_only: true` limits planning and implementation to the current sprint, so the rest of the backlog waits until it is pulled into one. `order_by` picks the next issue by backlog rank (the default) or by priority, with rank breaking ties.
+On Jira and Azure DevOps the factory works on stories only — `Story` on Jira, the process's story type on Azure DevOps — and `story_type` names another type, or several. On Azure DevOps, `azure_devops_team` limits it to that team's area paths: give the factory a team of its own, and handing it a story is moving the story into that team's area. `current_sprint_only: true` limits planning and implementation to the current sprint, so the rest of the backlog waits until it is pulled into one. `order_by` picks the next issue by backlog rank (the default) or by priority, with rank breaking ties.
+
+When a session picks an issue up it reads all of it: acceptance criteria and other fields, the parent and linked items, and the attachments that bear on the work, not just the title and description.
 
 If a story is too vague to hand to the factory, `/microfactory:refine-story` sharpens it first. It works out whatever the codebase already answers, then **comments the few real product choices on the issue** and stops — a yes/no confirmation where one option obviously wins, a short menu where the choice is genuinely open, each with a default so ignoring it is safe. Answer in a reply whenever you get to it. It never edits your story — the answers stay in the thread, and `plan-next` and `implement-next` read the thread when they pick the issue up. Drop the `needs-refinement` tag yourself once the answers satisfy you. Nothing waits on you, so it runs as a loop of its own:
 

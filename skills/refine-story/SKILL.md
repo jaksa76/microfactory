@@ -15,14 +15,14 @@ Act on **at most one item per iteration**.
 
 ## 1. Read configuration and pick an item
 
-Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `view`, `comments`, and `comment` subcommands, and nothing else. Load the `overrides` skill for `refine-story` and follow what it returns.
+Read `.microfactory/config.yaml`; if it does not exist, tell the user to run `/microfactory:init-factory` and stop. Load the `tasks` skill — you need its `list`, `view`, `comments`, and `comment` subcommands, and nothing else. Load the `overrides` skill for `refine-story` and follow what it returns.
 
 **With an issue key argument**: work that item.
 
-**Without one**: list open, unassigned items that are eligible for refinement, in backlog order —
+**Without one**: list open, unassigned items in the factory's scope (`list open scoped`) that are eligible for refinement, in backlog order —
 
 - tagged `needs-refinement`, or
-- items whose entire specification is their title (no body at all).
+- items whose entire specification is their title (no description, and no other content field such as acceptance criteria).
 
 Refinement never assigns the item, never transitions it, and never updates it. An assigned item is not claimable by `plan-next` or `implement-next`, and refining is not claiming. The questions comment is what tells another session this item has been handled.
 

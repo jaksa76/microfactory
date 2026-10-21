@@ -43,7 +43,16 @@ Other factory sessions may be claiming concurrently, so follow this optimistic-l
 4. **Wait about 5 seconds**, then re-fetch the issue's assignees.
 5. If you are not among the assignees, another worker won the race — go back to step 1.
 6. Planning mode only: swap labels — `gh issue edit <N> --add-label "in-planning" --remove-label "in-progress"`.
-7. Fetch title and body: `gh issue view <N> --repo owner/repo --json title,body`
+7. Read the complete issue (*Viewing an issue*).
+
+## Viewing an issue
+
+`gh issue view <N> --repo owner/repo --json number,title,body,labels,assignees,state,milestone` gives the content; GitHub issues have no other content fields. Build the complete item (the `tasks` skill, *The complete item*) from it plus:
+
+- **Links**: the parent issue and sub-issues, from `gh api graphql -f query='query { repository(owner:"<owner>", name:"<repo>") { issue(number: <N>) { parent { number title } subIssues(first: 50) { nodes { number title } } } } }'`, and the issues the body references as `#<n>`, with their titles.
+- **Attachments**: files and images dragged into an issue are links in the body (`https://github.com/user-attachments/…`). Those of a private repository need the user's browser session; when one cannot be downloaded, name it in the plan rather than guessing what it shows.
+
+GitHub has no issue types the factory reads, so every issue is in scope.
 
 ## Creating an issue
 
@@ -63,8 +72,8 @@ Pass only the parts you are changing. Updating an issue's content never changes 
 
 ## Other operations
 
-- **List**: `gh issue list --repo owner/repo --state open --json number,title,labels,assignees --limit 100` (`--state all` for closed ones too); newest first by default.
-- **View**: `gh issue view <N> --repo owner/repo --json number,title,body,labels,assignees`
+- **List**: `gh issue list --repo owner/repo --state open --json number,title,labels,assignees --limit 100` (`--state all` for closed ones too); newest first by default. `scoped` changes nothing.
+- **View**: as *Viewing an issue*.
 - **Comment**: `gh issue comment <N> --repo owner/repo --body "<text>"`
 - **List comments**: `gh issue view <N> --repo owner/repo --json comments` — oldest first, each with `author.login`, `body`, `createdAt`, `url`, and `viewerDidAuthor` (true for comments this account wrote). `comments` is also a valid `gh issue list --json` field, so a scan that needs comments for several issues can fetch them in the same call as eligibility.
 - **Transition**: GitHub has no issue statuses; the factory maps them to labels:

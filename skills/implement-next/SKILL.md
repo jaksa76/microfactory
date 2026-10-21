@@ -24,6 +24,8 @@ Then load the `overrides` skill for `implement-next` — and for `plan-next`, wh
 - **No argument**: claim the next implementation-eligible issue with the `tasks` skill's `claim implementation`. If there is no eligible issue, say "No implementation work available." and end the iteration — the loop cadence handles waiting.
 - **With an issue key argument**: `claim implementation <key>` — view that issue, assign it to yourself, and transition it to `In Progress` (best effort) instead of searching.
 
+**Read the complete issue** the claim returned, as `plan-next` step 3 describes: acceptance criteria and other content fields are requirements, and the attachments that bear on the change are downloaded outside the checkout and looked at. A plan does not replace this — it may have been written before a field or an attachment changed.
+
 **Then read the issue's comments** with the `tasks` skill's `comments`. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. Load `plan-next` and follow its *Reading a refinement thread* section to resolve it. Do this even when a plan already exists: the plan may predate the answers, and where the two disagree the thread is newer — follow it and correct the plan file.
 
 ## 4. Decide on a feature branch
@@ -36,7 +38,7 @@ Three cases, in this order:
 
 1. **`plans/<KEY>.md` exists** — it is the **approved plan**, use it as written. An existing plan is followed whatever the setting below says.
 2. **No plan and `auto_plan: true`** — write one now: load the `plan-next` skill and follow its analysis and plan-writing steps (its steps 4 and 5) to produce `plans/<KEY>.md`. Treat that plan as **approved** and carry straight on to the implementation — do not stop for review and do not transition the issue to `Awaiting Plan Review`.
-3. **No plan and `auto_plan` off** — implement without a plan file. The issue text and its resolved refinement thread are the specification. Still do `plan-next`'s **analysis** (its step 4) and carry the conclusions into the implementation: what is dropped here is the document and its self-approval, never the thinking.
+3. **No plan and `auto_plan` off** — implement without a plan file. The complete issue and its resolved refinement thread are the specification. Still do `plan-next`'s **analysis** (its step 4) and carry the conclusions into the implementation: what is dropped here is the document and its self-approval, never the thinking.
 
 A missing `auto_plan` key means **false** — planning happens in the planner loop unless a project asks for it here. Note that this is the opposite of `deep_review`, where an absent key means true; the two booleans sit next to each other in config and do not default the same way.
 
@@ -69,7 +71,7 @@ This setting chooses *who* reviews, never *whether*. When the cold review is off
 
 **When it is on, hand the review to a fresh agent, not to yourself.** You know why every line is there, so you read the diff as you intended it rather than as it is written; an agent seeing it cold does not. Give it only what a reviewer would legitimately have:
 
-- the issue text and the answers settled in its refinement thread,
+- the complete issue (acceptance criteria and the attachments you downloaded included) and the answers settled in its refinement thread,
 - `plans/<KEY>.md`,
 - the diff of this iteration,
 - the project's style guide, `CLAUDE.md`/`AGENTS.md`, or whatever conventions the repo documents.

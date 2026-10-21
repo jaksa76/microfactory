@@ -26,6 +26,8 @@ Plan in the checkout as it is. It is often shared with an implementer session or
 - **No argument**: claim the next planning-eligible issue with the `tasks` skill's `claim planning`. If there is no eligible issue, say "No planning work available." and end the iteration — the loop cadence handles waiting.
 - **With an issue key argument**: `claim planning <key>` — view that issue, assign it to yourself, and transition it to `Planning` (best effort) instead of searching.
 
+**Read the complete issue** the claim returned (the `tasks` skill's *The complete item*), not just its title and description. Acceptance criteria and the project's other content fields are requirements, as binding as the description. Look at the parent when the issue leans on it for context. Download the attachments that bear on the change — mockups, screenshots, specs — into a temporary directory outside the checkout and look at them. They never go into the repository, so the plan says what in them matters.
+
 **Then read the issue's comments** with the `tasks` skill's `comments`. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. See *Reading a refinement thread* at the end of this skill.
 
 ## 4. Analyze the change

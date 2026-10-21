@@ -28,10 +28,10 @@ One contract, four backends. This file defines the **subcommands** and the rules
 |---|---|
 | `setup` | Interactive. Detect each prerequisite, offer to install the missing ones **with the user's approval, one at a time**, log in, and report any config values the backend needs (account id, username, ...). Called by `init-factory`; never from a loop. |
 | `find <planning\|implementation>` | List the eligible items for that mode, best first (rules below). |
-| `list [open\|all]` | List items in the backlog regardless of eligibility, newest first — for reading how items are written or checking what is already queued. |
-| `claim <planning\|implementation> [key]` | Without a key, `find` and claim the first item. With a key, view that item, assign it to yourself and transition it (`Planning` or `In Progress`, best effort; names resolved per *Status names*) instead of searching. Returns the key, title and description. |
-| `view <key>` | Title, description, labels, assignee, status. |
-| `create <title> [labels] [body]` | New item, unassigned, in its initial status. |
+| `list [open\|all] [scoped]` | List items in the backlog regardless of eligibility, newest first — for reading how items are written or checking what is already queued. With `scoped`, only the items in the factory's *Scope* (below). |
+| `claim <planning\|implementation> [key]` | Without a key, `find` and claim the first item. With a key, view that item, assign it to yourself and transition it (`Planning` or `In Progress`, best effort; names resolved per *Status names*) instead of searching. Returns the key and the complete item (below). |
+| `view <key>` | The complete item (below). |
+| `create <title> [labels] [body]` | New item of the story type, unassigned, in its initial status, inside the factory's *Scope*. |
 | `update <key> [title] [body] [add/remove labels]` | Change an item's content or labels. |
 | `comment <key> <text>` | Add a comment. |
 | `comments <key>` | List the comments, oldest first, with author where the backend records one. |
@@ -39,7 +39,9 @@ One contract, four backends. This file defines the **subcommands** and the rules
 
 ## Rules every backend keeps
 
-**Eligibility.** An item is eligible when it is open and unassigned, and:
+**Scope.** The factory works on stories. An item is in scope when it is of the **story type**: `story_type` in config (a name or a list) on `jira` and `azure-devops`, otherwise the backend's default — `Story` on Jira, the process's requirement category (`User Story`, `Product Backlog Item`, `Requirement` or `Issue`) on Azure DevOps. Epics and features are containers, and tasks and bugs are usually parts of a story or follow a workflow without the factory's statuses, so a planned one could never leave the initial status. On `azure-devops` with `azure_devops_team` set, an item must also be in one of that team's area paths: a team dedicated to the factory is how a project hands it work. `github` and `todo` have no item types or teams; everything is in scope. `find` and `list scoped` apply the scope; `claim` with a key, `view` and plain `list` do not. `create` makes items of the story type (the first name of a list) in the team's default area, so what the factory creates stays in its scope.
+
+**Eligibility.** An item is eligible when it is in scope, open and unassigned, and:
 
 | Mode | `plan_by_default` | Eligible when |
 |---|---|---|
@@ -55,6 +57,15 @@ One contract, four backends. This file defines the **subcommands** and the rules
 **Order.** `find` returns items best first. `order_by: rank` (the default, also when the key is missing) is the backlog's manual drag-and-drop order; `order_by: priority` is the priority field, highest first, with rank breaking ties. Only `jira` and `azure-devops` have these fields; `github` takes the oldest issue first and `todo` the file order, whatever `order_by` says.
 
 **Claiming is optimistic locking** — other sessions may be claiming concurrently, so every backend follows it exactly: find eligible items → take the first → **assign yourself** → **wait** → **re-read the assignee** → if it is not you, another worker won, go back to the start → only then transition. The wait length and the verification query are per backend; skipping the verification is never allowed (the single-user todo backend is the only exception, and says so). Any change to a backend doc must preserve this.
+
+**The complete item.** `claim` and `view` return everything the item says, not just its title and description — a planner working from half a specification plans the wrong thing:
+
+- title, description, type, status, labels and assignee;
+- every other content field with a value — acceptance criteria, repro steps, a project's custom text fields — with HTML converted to text; bookkeeping fields (rank, dates, revision, board columns) are left out;
+- the parent and other linked items, by key and title;
+- the attachments, by name, with how to download each — images embedded in the description included.
+
+Comments are not part of it; callers read them with `comments`. Attachments are fetched only when they bear on the work, into a temporary directory outside the checkout — never into the repository and never committed.
 
 **Creating never claims.** A new item is left unassigned, in its initial status, because an assigned item is not claimable by any session. Never assign or transition a newly created item.
 
