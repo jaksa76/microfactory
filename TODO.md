@@ -64,3 +64,4 @@
 - [ ] TODO-41 - add labels to override base branch behaviour
 - [ ] TODO-32 - create a "start-improving" skill that starts the find-improvements loop, interval from an `improve_interval` config key (default 24h)
   - Note: Mirrors start / start-planning: read .microfactory/config.yaml, run /loop <improve_interval> /microfactory:find-improvements. find-improvements currently blocks on user approval before creating tasks (step 5), so the skill must say how an unattended sweep behaves — e.g. a cap on tasks created per sweep, or creating nothing and reporting instead. Add improve_interval to init-factory's interview and to the config example.
+- [ ] TODO-50 - add a skill to scan the CI pipelines and fix any bugs
