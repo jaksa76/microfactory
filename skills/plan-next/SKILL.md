@@ -30,6 +30,8 @@ Plan in the checkout as it is. It is often shared with an implementer session or
 
 **Then read the issue's comments** with the `tasks` skill's `comments`. Refinement happens in the thread, not in the issue body — `refine-story` posts questions there and the product owner answers beneath them, so the thread is part of the specification. See *Reading a refinement thread* at the end of this skill.
 
+**Get context** If the issue is child of a larger story, feature or epic, read the parent issue to understand the broader context and how this issue fits into the overall plan. This helps ensure that the proposed change aligns with the larger objectives and dependencies. If there are plans for relevant unimplemented sibling issues, read them as well to understand potential interactions and dependencies. If the siblings aren't relevant or they have been implemented, skip them.
+
 ## 4. Analyze the change
 
 Before writing the plan, explore the codebase to understand what the issue touches and do the analysis the change calls for. Depending on the nature of the issue:
@@ -45,10 +47,10 @@ Fold the conclusions of this analysis into the plan below (in the Summary and Ri
 
 Write `plans/<KEY>.md` with these sections:
 
-- **Summary** — what the issue asks for and the chosen approach
-- **Files to Change** — concrete files, with what changes in each
-- **Implementation Steps** — discrete, ordered steps
-- **Testing** — tests to add or modify
+- **Summary** — what the issue asks for
+- **Context** — current mechanisms relevant to the issue and relation to other plans
+- **Design choices** — the chosen approach and any alternatives considered
+- **Files to Change** — concrete files, with functions to modify or add in each
 - **Risks / Edge Cases** — risks, edge cases, dependencies
 
 The plan must be executable by another agent with no context beyond the repo and the plan itself.
