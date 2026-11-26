@@ -22,12 +22,15 @@ List **open, unassigned** issues, oldest first (sort by issue number ascending).
 | implementation | true | labeled `plan-approved` or `skip-plan` |
 | implementation | false | not labeled `needs-plan` |
 
+Unassigned issues can still be mid-workflow, so both modes also exclude issues with a status label (`in-progress`, `in-planning`, `awaiting-plan-review`, `in-review`), and planning also excludes `plan-approved`.
+
 Example (implementation, plan_by_default true):
 
 ```
 gh issue list --repo owner/repo --state open --json number,title,labels,assignees \
   --jq '[.[] | select((.assignees | length) == 0)
-             | select([.labels[].name] | (index("plan-approved") != null or index("skip-plan") != null))]
+             | select([.labels[].name] | (index("plan-approved") != null or index("skip-plan") != null))
+             | select([.labels[].name] | any(. == "in-progress" or . == "in-planning" or . == "awaiting-plan-review" or . == "in-review") | not)]
        | sort_by(.number)'
 ```
 
@@ -83,8 +86,8 @@ Pass only the parts you are changing. Updating an issue's content never changes 
 | In Progress | add `in-progress` |
 | Planning | add `in-planning`, remove `in-progress` |
 | Awaiting Plan Review | add `awaiting-plan-review`, remove `in-planning`, **remove yourself as assignee** |
-| Plan Approved | done by a human reviewer: they add `plan-approved`, remove `awaiting-plan-review` |
-| In Review | add `in-review`, remove `in-progress` |
+| Plan Approved | done by a human reviewer: they add `plan-approved`, remove `awaiting-plan-review` (or `in-review`, to send an implementation back) |
+| In Review | add `in-review`, remove `in-progress`, **remove yourself as assignee** |
 | Done | remove `in-progress`/`in-review`, then `gh issue close <N>` |
 
 Missing labels on the repo make `--add-label` fail — create the label (`gh label create <name> --repo owner/repo`) and retry. Treat failed label changes after work is done as warnings, not errors.

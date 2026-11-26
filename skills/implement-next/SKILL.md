@@ -1,6 +1,6 @@
 ---
 name: implement-next
-description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or, with auto_plan on, write one first and treat it as approved), implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
+description: Run one implementation iteration of the microfactory — claim the next implementation-eligible issue from the configured backend, follow its approved plan (or, with auto_plan on, write one first and treat it as approved), implement it, run the tests, verify the behaviour (UI, e2e), review the code, push (directly or via a feature branch + PR), and update the issue. Hands stories sent back from review to revise-story. Intended as a /loop target (e.g. /loop 20m /microfactory:implement-next); also takes an optional issue key to implement a specific issue.
 ---
 
 # Implement the next issue
@@ -30,7 +30,9 @@ Then load the `overrides` skill for `implement-next` — and for `plan-next`, wh
 
 ## 4. Decide on a feature branch
 
-Use a feature branch when `feature_branches: true` in config **or** the issue has a `needs-branch` label; a `skip-branch` label overrides both and forces direct-to-default. When branching, create `feature/<KEY>` from the latest default branch (reset it to the default branch if it already exists).
+If the story already has a feature branch or PR, it was sent back from review: load the `revise-story` skill and follow it instead of the steps below.
+
+Otherwise, use a feature branch when `feature_branches: true` in config **or** the issue has a `needs-branch` label; a `skip-branch` label overrides both and forces direct-to-default. When branching, create `feature/<KEY>` from the latest default branch.
 
 ## 5. Settle the plan
 

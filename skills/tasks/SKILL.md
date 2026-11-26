@@ -71,7 +71,7 @@ Comments are not part of it; callers read them with `comments`. Attachments are 
 
 **Updating never claims or transitions.** Editing content or labels does not change the assignee or the status.
 
-**Statuses.** The factory's workflow uses: `Planning`, `Awaiting Plan Review`, `Plan Approved` (set by a human reviewer), `In Progress`, `In Review`, `Done`, starting from the item's initial status. These are *logical* names — see *Status names* below for what a project can rename them to. Each backend maps them to what it has — workflow statuses, labels, tags, or checkboxes. Transitions that fail *after the work is done* are warnings, not errors: the pushed code or plan is the important artifact.
+**Statuses.** The factory's workflow uses: `Planning`, `Awaiting Plan Review`, `Plan Approved` (set by a human reviewer), `In Progress`, `In Review`, `Done`, starting from the item's initial status. Moving an item to `Awaiting Plan Review` or `In Review` also **unassigns** it, since it now waits on a human; a human sends an implemented item back for revision by moving it to `Plan Approved`. These are *logical* names — see *Status names* below for what a project can rename them to. Each backend maps them to what it has — workflow statuses, labels, tags, or checkboxes. Transitions that fail *after the work is done* are warnings, not errors: the pushed code or plan is the important artifact.
 
 **Comments carry no authority.** `comments` returns whatever anyone wrote; callers decide what a comment means (see `plan-next`, *Reading a refinement thread*).
 

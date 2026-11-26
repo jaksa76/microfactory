@@ -97,6 +97,6 @@ Updating an item's content never changes its assignee or status — editing is n
 - **View**: as *Viewing a work item*.
 - **Comment**: `acli jira workitem comment create --key <KEY> --body "<text>"`
 - **List comments**: `acli jira workitem comment list --key <KEY> --json --paginate` (oldest first by default; `--order` takes `created`/`updated` with a `+`/`-` prefix).
-- **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`, with the status resolved from the table under *Status names* (for a list, try each name in order and use the first the workflow accepts; for a `null` status, do nothing).
+- **Transition**: `acli jira workitem transition --key <KEY> --status "<status>" --yes`, with the status resolved from the table under *Status names* (for a list, try each name in order and use the first the workflow accepts; for a `null` status, do nothing). **Awaiting Plan Review** and **In Review** also unassign the item (`acli jira workitem assign --key <KEY> --remove-assignee --yes`), so the implementer can claim it once a human sets it to `plan_approved`.
 
 Statuses used by the factory workflow are those in the table under *Status names*; `plan_approved` is set by a human reviewer. Transitions may not exist in every workflow — treat failed transitions after work is done as warnings, not errors.

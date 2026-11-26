@@ -77,6 +77,6 @@ This is a bulk, one-time correction — normal operation only ever adds one id a
 - **View**: find the line whose text starts with `TODO-<n>` (or, for a legacy item, line `<n>` itself). The line and the indented lines beneath it are the complete item; the file has no types, links or attachments, so every item is in scope and `scoped` changes nothing.
 - **Comment**: insert an indented note line **below the item and below any notes already there**, so notes stay in the order they were written: `  - Note: <text>`. A multi-line comment becomes one indented `- Note:` line per line of text, keeping the same indentation.
 - **List comments**: the indented `- Note:` lines beneath the item, in file order. This file has no authors or timestamps, so a reader tells notes apart by their content alone — which is why `refine-story` marks its own with a fixed first line.
-- **Transition**: set the checkbox character per the status table above (In Progress and In Review both map to `[>]`; Done is `[x]`). A human reviewer approves a plan by changing `[?]` to `[p]`.
+- **Transition**: set the checkbox character per the status table above (In Progress and In Review both map to `[>]`; Done is `[x]`). A human reviewer approves a plan by changing `[?]` to `[p]`, and sends an implementation back for revision by changing `[>]` to `[p]`.
 
 Commit changes to the TODO file together with the related work so the backlog history stays in git.
